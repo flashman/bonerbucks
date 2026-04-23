@@ -7,6 +7,15 @@ import SafeImage from "@/components/SafeImage";
 export const metadata: Metadata = { title: "Blog — Bonerbucks" };
 export const revalidate = 300;
 
+/** Strip any <html>/<head>/<body> wrapper tags that rich-text editors sometimes
+ *  inject — rendering them inside a <div> causes a React hydration error. */
+function sanitizePostHtml(html: string): string {
+  return html
+    .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, "")
+    .replace(/<\/?(html|body)[^>]*>/gi, "")
+    .trim();
+}
+
 export default async function BlogPage() {
   const supabase = await createClient();
 
@@ -21,7 +30,7 @@ export default async function BlogPage() {
       {(dbPosts ?? []).map((post: Post) => (
         <div key={post.id} className="post">
           <h5><a>{formatDate(post.created_at)}</a></h5>
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div dangerouslySetInnerHTML={{ __html: sanitizePostHtml(post.content) }} />
         </div>
       ))}
 

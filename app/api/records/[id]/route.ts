@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { parseAnonRecords } from "@/lib/utils";
 import { cookies } from "next/headers";
 import { z } from "zod";
@@ -50,15 +50,19 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 422 });
   }
 
-  const { data, error } = await supabase
+  // Use the service client for the write — our authorise() above already confirmed
+  // permission. The anon-key client would be silently blocked by RLS for records
+  // where user_id is null (anon sightings tracked by cookie), since
+  // `null = null` is false in SQL's owner-update policy.
+  const serviceClient = createServiceClient();
+  const { data, error } = await serviceClient
     .from("records")
     .update({ ...parsed.data, updated_at: new Date().toISOString() })
     .eq("id", recordId)
-    .select()
-    .single();
+    .select();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  return NextResponse.json(data?.[0] ?? null);
 }
 
 export async function DELETE(_req: NextRequest, ctx: Ctx) {

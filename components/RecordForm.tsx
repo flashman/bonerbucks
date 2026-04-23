@@ -3,7 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { normaliseSerial, isValidSerial, MAX_IMAGE_BYTES } from "@/lib/utils";
+import { normaliseSerial, isValidSerial, MAX_IMAGE_BYTES, imageUrl } from "@/lib/utils";
+import SafeImage from "@/components/SafeImage";
 import type { Record as BRecord } from "@/lib/types";
 
 interface Props {
@@ -171,7 +172,14 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
           onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
         />
         {record?.image_path && !imageFile && (
-          <p style={{ fontSize: 11, color: "#777", marginTop: 2 }}>Current image on file. Upload a new one to replace it.</p>
+          <div style={{ marginTop: 4 }}>
+            <SafeImage
+              src={imageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL!, record.image_path, "large")}
+              alt="Current image"
+              style={{ maxWidth: 300, maxHeight: 200, display: "block", marginBottom: 4 }}
+            />
+            <p style={{ fontSize: 11, color: "#777" }}>Current image on file. Upload a new one to replace it.</p>
+          </div>
         )}
       </div>
 
