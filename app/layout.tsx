@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata: Metadata = {
   title: "Bonerbucks",
   description: "The Boner Tracking Project",
+  icons: { icon: "/favicon.ico" },
 };
 
 export default async function RootLayout({
@@ -29,30 +30,67 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* HEADER */}
-        <div className="border-b-2 border-black text-center py-4">
-          <a href="/" className="no-underline">
-            <h1 className="text-3xl tracking-widest">BONERBUCKS.ORG</h1>
+        {/* ── HEADER — matches original _head.html.erb ── */}
+        <div className="head">
+          <div style={{ textAlign: "right", maxWidth: 700, margin: "0 auto", height: 25 }}>
+            <HoverLogin user={user} profile={profile} />
+          </div>
+          <a href="/">
+            <div style={{ textAlign: "center" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/bonerbuck.gif" width={700} height={302} alt="Bonerbucks" style={{ margin: "0 auto", display: "block" }} />
+            </div>
           </a>
         </div>
 
+        {/* ── NAV ── */}
         <Nav user={user} profile={profile} />
 
-        {/* CONTENT */}
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          {children}
+        {/* ── CONTENT ── */}
+        <div style={{ textAlign: "center" }}>
+          <div className="content">
+            {children}
+          </div>
         </div>
 
-        {/* FOOTER */}
-        <div className="border-t-2 border-black text-center py-4 mt-12 text-xs uppercase">
-          <p>
-            bonerbucks.org &mdash; the boner tracking project &mdash;{" "}
-            <a href="/about">about</a> &mdash;{" "}
-            <a href="/blog">blog</a> &mdash;{" "}
-            <a href="mailto:contact@bonerbucks.org">contact</a>
-          </p>
+        {/* ── FOOTER — matches original _foot.html.erb ── */}
+        <div className="foot">
+          <h5>
+            <span className="about">
+              <a href="/about">ABOUT</a> | <a href="/blog">BLOG</a>
+            </span>
+            <span className="copyright">&copy; COPYRIGHT 2014, YOUR MOM</span>
+          </h5>
         </div>
       </body>
     </html>
   );
 }
+
+/* Inline because it's tiny and only used in the layout */
+function HoverLogin({
+  user,
+  profile,
+}: {
+  user: { id: string } | null;
+  profile: { name: string } | null;
+}) {
+  if (user) {
+    return (
+      <h6 className="login" style={{ fontSize: 12 }}>
+        <a href="/account">ACCOUNT ({profile?.name})</a> |{" "}
+        <form action="/api/auth/logout" method="POST" style={{ display: "inline" }}>
+          <button type="submit" style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontFamily: "inherit", fontSize: "inherit" }}>
+            LOGOUT
+          </button>
+        </form>
+      </h6>
+    );
+  }
+  return (
+    <h6 className="login" style={{ fontSize: 12 }}>
+      <a href="/login">LOGIN</a>
+    </h6>
+  );
+}
+

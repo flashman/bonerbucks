@@ -118,78 +118,71 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
-      {error && <p className="error">{error}</p>}
+    <form onSubmit={handleSubmit} style={{ maxWidth: 560 }}>
+      {error && <p className="error" style={{ marginBottom: 10 }}>{error}</p>}
 
-      <div>
-        <h4 className="mb-1">SERIAL:</h4>
+      <div className="field-row">
+        <h4>SERIAL:</h4>
         <input
-          className="input uppercase"
+          type="text"
           value={serial}
           onChange={(e) => setSerial(e.target.value)}
           placeholder="A12345678B"
           maxLength={10}
           disabled={isEdit}
           required
+          style={{ fontFamily: "verdana", fontSize: 14, border: "1px solid #999", padding: "2px 4px", width: 200, textTransform: "uppercase" }}
         />
-        <p className="text-xs text-gray-500 mt-0.5">Format: one letter, 8 digits, one letter</p>
+        <p style={{ fontSize: 11, color: "#777", marginTop: 2 }}>Format: one letter, 8 digits, one letter</p>
       </div>
 
-      <div>
-        <h4 className="mb-1">CITY:</h4>
-        <div className="flex gap-2">
-          <input
-            className="input flex-1"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            onBlur={(e) => geocodeLocation(e.target.value)}
-            placeholder="Oakland, CA"
-            required
-          />
-          {geocoding && <span className="text-xs self-center text-gray-500">GEOCODING...</span>}
-          {lat !== "" && !geocoding && (
-            <span className="text-xs self-center text-green-700 font-bold">✓ LOCATED</span>
-          )}
-        </div>
-        {/* Hidden lat/lng — populated by geocoder */}
-        <input type="hidden" value={lat} readOnly />
-        <input type="hidden" value={lng} readOnly />
-        {lat !== "" && (
-          <p className="text-xs text-gray-400 mt-0.5">{Number(lat).toFixed(4)}, {Number(lng).toFixed(4)}</p>
-        )}
+      <div className="field-row">
+        <h4>CITY:</h4>
+        <input
+          type="text"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          onBlur={(e) => geocodeLocation(e.target.value)}
+          placeholder="Oakland, CA"
+          required
+          style={{ fontFamily: "verdana", fontSize: 14, border: "1px solid #999", padding: "2px 4px", width: 300 }}
+        />
+        {geocoding && <span style={{ fontSize: 11, color: "#777", marginLeft: 8 }}>GEOCODING...</span>}
+        {lat !== "" && !geocoding && <span style={{ fontSize: 11, color: "green", marginLeft: 8 }}>✓ LOCATED</span>}
+        {lat !== "" && <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{Number(lat).toFixed(4)}, {Number(lng).toFixed(4)}</p>}
       </div>
 
-      <div>
-        <h4 className="mb-1">NOTES (IF YOU WANT):</h4>
+      <div className="field-row">
+        <h4>NOTES (IF YOU WANT):</h4>
         <textarea
-          className="input h-28 resize-y"
           value={note}
           onChange={(e) => setNote(e.target.value)}
+          style={{ fontFamily: "verdana", fontSize: 14, border: "1px solid #999", padding: "2px 4px", width: 500, height: 100 }}
           placeholder="Tell us about this boner..."
         />
       </div>
 
-      <div>
-        <h4 className="mb-1">IMAGE (IF YOU WANT... MAX SIZE IS 500KB):</h4>
+      <div className="field-row">
+        <h4>IMAGE (IF YOU WANT... MAX SIZE IS 500KB):</h4>
         <input
           ref={fileRef}
           type="file"
           accept="image/*"
-          className="text-sm"
+          style={{ fontFamily: "verdana", fontSize: 13 }}
           onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
         />
         {record?.image_path && !imageFile && (
-          <p className="text-xs text-gray-500 mt-1">Current image on file. Upload a new one to replace it.</p>
+          <p style={{ fontSize: 11, color: "#777", marginTop: 2 }}>Current image on file. Upload a new one to replace it.</p>
         )}
       </div>
 
-      <button
+      <br />
+      <input
         type="submit"
+        value={loading ? "SAVING..." : "DONE"}
         disabled={loading}
-        className="btn disabled:opacity-50"
-      >
-        {loading ? "SAVING..." : "DONE"}
-      </button>
+        style={{ opacity: loading ? 0.5 : 1 }}
+      />
     </form>
   );
 }

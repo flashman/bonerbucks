@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -43,53 +42,46 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="max-w-sm mx-auto space-y-6">
-      <h2>SIGNUP</h2>
-      <p className="text-sm">Join the boner tracking project.</p>
+    <div className="login-page" style={{ margin: "-18px -9999px", padding: "80px 0" }}>
+      <div className="login-box" style={{ width: 370, margin: "0 auto", textAlign: "left" }}>
+        <h2 style={{ color: "white", marginBottom: 20 }}>SIGNUP</h2>
 
-      {error && <p className="error">{error}</p>}
+        {error && <p style={{ color: "red", marginBottom: 10 }}>{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <h4 className="mb-1">USERNAME:</h4>
-          <input
-            type="text" required autoComplete="username"
-            className="input" value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div>
-          <h4 className="mb-1">EMAIL:</h4>
-          <input
-            type="email" required autoComplete="email"
-            className="input" value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <h4 className="mb-1">PASSWORD:</h4>
-          <input
-            type="password" required autoComplete="new-password"
-            className="input" value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div>
-          <h4 className="mb-1">CONFIRM:</h4>
-          <input
-            type="password" required autoComplete="new-password"
-            className="input" value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-          />
-        </div>
-        <button type="submit" disabled={loading} className="btn disabled:opacity-50">
-          {loading ? "SIGNING UP..." : "SIGNUP"}
-        </button>
-      </form>
-
-      <p className="text-sm">
-        Already have an account? <Link href="/login">LOGIN</Link>
-      </p>
+        <form onSubmit={handleSubmit}>
+          {[
+            { label: "USERNAME:", type: "text",     val: name,     set: setName,     ac: "username" },
+            { label: "EMAIL:",    type: "email",    val: email,    set: setEmail,    ac: "email" },
+            { label: "PASSWORD:", type: "password", val: password, set: setPassword, ac: "new-password" },
+            { label: "CONFIRM:",  type: "password", val: confirm,  set: setConfirm,  ac: "new-password" },
+          ].map(({ label, type, val, set, ac }) => (
+            <div key={label} style={{ marginBottom: 8 }}>
+              <h4>
+                <span className="label">{label}</span>
+                <input
+                  type={type}
+                  required
+                  autoComplete={ac}
+                  value={val}
+                  onChange={(e) => set(e.target.value)}
+                  style={{ fontFamily: "verdana", fontSize: 14, border: "1px solid #999", padding: "2px 4px", width: 235 }}
+                />
+              </h4>
+            </div>
+          ))}
+          <br />
+          <h4>
+            <button type="submit" disabled={loading}>
+              {loading ? "SIGNING UP..." : "SIGNUP"}
+            </button>
+          </h4>
+          <br />
+          <h5 style={{ color: "white", fontWeight: "normal" }}>
+            Already have an account?{" "}
+            <a href="/login" style={{ color: "white" }}>Login</a>.
+          </h5>
+        </form>
+      </div>
     </div>
   );
 }

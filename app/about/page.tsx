@@ -53,6 +53,11 @@ export default function AboutPage() {
         Or just grab some pens/sharpies/white-out and do your thing. Every boner is
         beautiful.
       </p>
+
+      <div style={{ textAlign: "center" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/bonerbucksAtTransformoneyTree-s.gif" width={600} height={450} alt="Bonerbucks at Transformoney Tree" />
+      </div>
     </div>
   );
 }

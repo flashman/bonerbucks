@@ -2,76 +2,166 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Bonerbucks global styles ── */
-@layer base {
-  body {
-    @apply font-mono bg-white text-black;
-  }
+/* ─────────────────────────────────────────────────────────────
+   Bonerbucks — styles faithfully ported from the original
+   Rails app/assets/stylesheets/application.css
+   ───────────────────────────────────────────────────────────── */
 
-  h1 { @apply text-2xl font-bold uppercase; }
-  h2 { @apply text-xl font-bold uppercase; }
-  h3 { @apply text-lg font-bold uppercase; }
-  h4 { @apply text-base font-bold uppercase; }
-  h5 { @apply text-sm font-bold uppercase; }
-
-  a {
-    @apply underline hover:no-underline;
-  }
+body {
+  color: black;
+  background-color: white;
+  margin-top: 0px;
+  margin-bottom: 30px;
+  margin-right: auto;
+  margin-left: auto;
+  font-family: "palatino", "caslon", "sabon", "bembo", serif;
 }
 
-@layer components {
-  .btn {
-    @apply border border-black px-4 py-1 text-sm uppercase font-bold
-           hover:bg-black hover:text-white transition-colors cursor-pointer;
-  }
+h1, h2, h3, h4, h5, h6, th, label {
+  font-family: "futura", "univers", "helvetica", sans-serif;
+  font-weight: bold;
+  padding: 0px;
+  margin: 0px;
+}
 
-  .btn-danger {
-    @apply border border-red-600 text-red-600 px-4 py-1 text-sm uppercase font-bold
-           hover:bg-red-600 hover:text-white transition-colors cursor-pointer;
-  }
+td, p {
+  font-family: verdana, sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  margin-top: 0px;
+}
 
-  .input {
-    @apply border border-black px-2 py-1 font-mono text-sm w-full focus:outline-none
-           focus:ring-2 focus:ring-black;
-  }
+h1 { font-size: 40px; text-align: center; }
+h2 { font-size: 28px; text-align: center; }
+h3 { font-size: 24px; text-align: center; }
 
-  .notice {
-    @apply border border-green-600 bg-green-50 text-green-800 px-4 py-2 text-sm uppercase;
-  }
+p, ol, textarea, input {
+  font-family: verdana, sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  margin-top: 0px;
+}
 
-  .error {
-    @apply border border-red-600 bg-red-50 text-red-800 px-4 py-2 text-sm uppercase;
-  }
+div, img { margin: 0pt; }
 
-  /* Sortable table */
-  .sortable {
-    @apply w-full border-collapse text-sm;
-  }
-  .sortable th {
-    @apply border-b-2 border-black px-2 py-1 text-left uppercase text-xs cursor-pointer
-           select-none hover:bg-gray-100;
-  }
-  .sortable td {
-    @apply border-b border-gray-200 px-2 py-1;
-  }
-  .sortable tr:hover td {
-    @apply bg-gray-50;
-  }
+a { text-decoration: none; color: #555555; }
+a:hover { background-color: black; color: white; }
+a.stamp:hover { background-color: white; }
 
-  /* Map */
-  #map_canvas {
-    @apply w-full h-96 border border-black;
-  }
+th, td {
+  width: 200px;
+  padding-right: 10px;
+  padding-bottom: 5px;
+  vertical-align: middle;
+  text-align: left;
+}
+th.narrow, td.narrow { width: 150px; }
+th.tiny,   td.tiny   { width: 50px; }
+th.wide,   td.wide   { width: 250px; }
+table.sortable th { cursor: pointer; }
 
-  /* Blog posts */
-  .post {
-    @apply mb-8 pb-8 border-b border-gray-200;
-  }
-  .post .media {
-    @apply my-4;
-  }
-  .post .media img,
-  .post .media iframe {
-    @apply max-w-full;
-  }
+.error, .notice { color: red; }
+.left  { text-align: left; }
+.right { text-align: right; }
+
+/* ── Header ── */
+.head { margin-bottom: 0px; padding-top: 5px; }
+.head .login-container { text-align: right; height: 25px; max-width: 700px; }
+.head .login { padding-top: 4px; }
+
+/* ── Nav ── */
+.nav { background-color: black; margin-bottom: 18px; }
+.nav h3 { padding: 10px 9px; }
+.nav a { color: white; }
+.nav a:hover { background-color: #333; color: white; }
+
+/* ── Content ── */
+.content {
+  max-width: 700px;
+  min-height: 250px;
+  padding-bottom: 18px;
+  background-color: white;
+  text-align: justify;
+  margin: 0 auto;
+}
+
+/* ── Blog ── */
+.post { padding-bottom: 10px; }
+.post .media { text-align: center; }
+.post .media img { max-width: 600px; }
+.post .media .source { font-size: 10pt; }
+
+/* ── Footer ── */
+.foot { background-color: black; }
+.foot h5 { padding: 19px 14px; text-align: center; }
+.foot .about { padding-right: 125px; }
+.foot .copyright { padding-left: 200px; color: white; }
+.foot a { color: white; }
+.foot a:hover { background-color: #333; color: white; }
+
+/* ── Login page ── */
+.login-page {
+  text-align: center;
+  padding-top: 150px;
+  background-image: url('/login.jpg');
+  background-size: cover;
+  min-height: 100vh;
+}
+.login-page .login-box { width: 370px; margin: 0 auto; }
+.login-page .label { display: inline-block; width: 105px; text-align: left; }
+.login-page input[type="submit"],
+.login-page button[type="submit"] {
+  color: #000000;
+  background-color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 2px 0px;
+  text-decoration: none;
+  width: 355px;
+  border: none;
+  cursor: pointer;
+}
+.login-page input[type="submit"]:hover,
+.login-page button[type="submit"]:hover {
+  color: #ffffff;
+  background-color: #000000;
+}
+
+/* ── Map ── */
+#map_canvas { width: 100%; height: 350pt; }
+.windowcontent { min-width: 275px; max-width: 325px; margin-right: 25px; margin-bottom: 15px; }
+.windowcontent span { display: block; font-family: verdana, sans-serif; font-weight: normal; }
+.pac-item { font-family: verdana, sans-serif; }
+
+/* ── Fancybox overrides ── */
+.fancybox:hover         { background-color: transparent; color: black; }
+.fancybox-close:hover   { background-color: transparent; color: black; }
+
+/* ── Forms / inputs (used in record & auth forms) ── */
+.field-row { margin-bottom: 10px; }
+.field-row input[type="text"],
+.field-row input[type="email"],
+.field-row input[type="password"],
+.field-row textarea {
+  font-family: verdana, sans-serif;
+  font-size: 14px;
+  border: 1px solid #999;
+  padding: 2px 4px;
+  width: 350px;
+}
+.field-row textarea { height: 100px; width: 500px; }
+
+input[type="submit"], button.submit-btn {
+  font-family: "futura", "univers", "helvetica", sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  background: white;
+  border: 2px solid black;
+  padding: 3px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+input[type="submit"]:hover, button.submit-btn:hover {
+  background: black;
+  color: white;
 }
