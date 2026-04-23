@@ -21,7 +21,9 @@ export function imageUrl(
 ): string {
   // Supabase Image Transformation: ?width=&height=
   const dims = variant === "thumb" ? "width=105&height=45" : "width=700&height=300";
-  return `${supabaseUrl}/storage/v1/render/image/public/record-images/${path}?${dims}&resize=contain`;
+  return `${supabaseUrl}/storage/v1/object/public/record-images/${path}?${dims}&resize=contain`;
+
+  //return `${supabaseUrl}/storage/v1/render/image/public/record-images/${path}?${dims}&resize=contain`;
 }
 
 export function publicStorageUrl(supabaseUrl: string, path: string): string {
