@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from 'next/link'
 import "./globals.css";
 import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/server";
@@ -35,12 +36,12 @@ export default async function RootLayout({
           <div style={{ textAlign: "right", maxWidth: 700, margin: "0 auto", height: 25 }}>
             <HoverLogin user={user} profile={profile} />
           </div>
-          <a href="/">
+          <Link href="/">
             <div style={{ textAlign: "center" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/bonerbuck.gif" width={700} height={302} alt="Bonerbucks" style={{ margin: "0 auto", display: "block" }} />
             </div>
-          </a>
+          </Link>
         </div>
 
         {/* ── NAV ── */}
@@ -57,7 +58,7 @@ export default async function RootLayout({
         <div className="foot">
           <h5>
             <span className="about">
-              <a href="/about">ABOUT</a> | <a href="/blog">BLOG</a>
+              <Link href="/about">ABOUT</Link> | <Link href="/blog">BLOG</Link>
             </span>
             <span className="copyright">&copy; COPYRIGHT 2014, YOUR MOM</span>
           </h5>
@@ -78,7 +79,7 @@ function HoverLogin({
   if (user) {
     return (
       <h6 className="login" style={{ fontSize: 12 }}>
-        <a href="/account">ACCOUNT ({profile?.name})</a> |{" "}
+        <Link href="/account">ACCOUNT ({profile?.name})</Link> |{" "}
         <form action="/api/auth/logout" method="POST" style={{ display: "inline" }}>
           <button type="submit" style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontFamily: "inherit", fontSize: "inherit" }}>
             LOGOUT
@@ -89,8 +90,7 @@ function HoverLogin({
   }
   return (
     <h6 className="login" style={{ fontSize: 12 }}>
-      <a href="/login">LOGIN</a>
+      <Link href="/login">LOGIN</Link>
     </h6>
   );
 }
-

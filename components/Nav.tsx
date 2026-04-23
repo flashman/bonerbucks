@@ -1,5 +1,5 @@
 "use client";
-
+import Link from 'next/link'
 import type { User } from "@supabase/supabase-js";
 
 interface NavProps {
@@ -11,19 +11,19 @@ export default function Nav({ user, profile }: NavProps) {
   return (
     <div className="nav">
       <h3>
-        <a href="/boners">TRACK A BONER</a>
+        <Link href="/boners">TRACK A BONER</Link>
         {" | "}
-        <a href="/boners/new">REPORT A BONER</a>
+        <Link href="/boners/new">REPORT A BONER</Link>
         {" | "}
-        <a href="/make">MAKE A BONER</a>
+        <Link href="/make">MAKE A BONER</Link>
         {user && (
           <>
             {" | "}
-            <a href="/account">MY BONERS</a>
+            <Link href="/account">MY BONERS</Link>
             {profile?.role === 1 && (
               <>
                 {" | "}
-                <a href="/admin/records">ADMIN</a>
+                <Link href="/admin/records">ADMIN</Link>
               </>
             )}
           </>

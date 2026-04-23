@@ -65,7 +65,7 @@ table.sortable th { cursor: pointer; }
 .right { text-align: right; }
 
 /* ── Header ── */
-.head { margin-bottom: 0px; padding-top: 5px; }
+.head { margin-bottom: 15px; padding-top: 5px; }
 .head .login-container { text-align: right; height: 25px; max-width: 700px; }
 .head .login { padding-top: 4px; }
 

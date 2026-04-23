@@ -22,7 +22,7 @@ export default function HomePage() {
         </p>
         <p className="italic text-xs pl-4 border-l-2 border-black space-y-1">
           <span className="block">GUY 1: Oh shit, we are a little short on tip...</span>
-          <span className="block">GUY 2: Don't look at me! This is my last boner buck!</span>
+          <span className="block">GUY 2: Don&apos;t look at me! This is my last boner buck!</span>
           <span className="block">GUY 3: Dude here, [Hands Guy 2 a sharpie] shut up and pitch in.</span>
           <span className="block text-right">—urbandictionary.com</span>
         </p>

@@ -15,7 +15,7 @@ export default function HomeMap() {
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
 
   useEffect(() => {
-    let markers: google.maps.marker.AdvancedMarkerElement[] = [];
+    const markers: google.maps.marker.AdvancedMarkerElement[] = [];
 
     async function initMap() {
       if (!mapRef.current) return;

@@ -23,6 +23,8 @@ terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 terraform/.terraform/
 terraform/.terraform.lock.hcl
+*.tfvars
+
 
 # misc
 .DS_Store
@@ -40,5 +42,6 @@ yarn-error.log*
 supabase/.temp
 
 # Emacs
-.#*
-*#*#
+*.*~
+\#*\#
+.\#*

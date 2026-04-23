@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
-import { imageUrl, formatDate, parseAnonRecords } from "@/lib/utils";
+import { imageUrl, parseAnonRecords } from "@/lib/utils";
 import BonerRecordRow from "@/components/BonerRecordRow";
 import type { Record as BRecord } from "@/lib/types";
 
