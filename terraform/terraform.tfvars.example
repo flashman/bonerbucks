@@ -1,0 +1,15 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is gitignored — never commit it.
+
+vercel_api_token      = "your-vercel-api-token"
+vercel_team_id        = ""                        # leave blank for personal account
+
+supabase_access_token = "your-supabase-token"
+supabase_org_id       = "your-org-id"
+supabase_db_password  = "a-strong-random-password"
+supabase_region       = "us-west-1"
+
+google_maps_api_key   = "your-google-maps-api-key"
+
+app_name              = "bonerbucks"
+production_domain     = "bonerbucks.org"           # or "" to skip custom domain

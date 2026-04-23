@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    name: Typecheck & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Build requires real env vars — stub them so tsc doesn't choke
+      - name: Create stub .env
+        run: |
+          cat > .env.local << 'EOF'
+          NEXT_PUBLIC_SUPABASE_URL=https://stub.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=stub-anon-key
+          SUPABASE_SERVICE_ROLE_KEY=stub-service-key
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=stub-maps-key
+          NEXT_PUBLIC_SITE_URL=http://localhost:3000
+          EOF
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        run: npm run lint
+
+  build:
+    name: Next.js build
+    runs-on: ubuntu-latest
+    needs: typecheck
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create stub .env
+        run: |
+          cat > .env.local << 'EOF'
+          NEXT_PUBLIC_SUPABASE_URL=https://stub.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=stub-anon-key
+          SUPABASE_SERVICE_ROLE_KEY=stub-service-key
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=stub-maps-key
+          NEXT_PUBLIC_SITE_URL=http://localhost:3000
+          EOF
+
+      - name: Build
+        run: npm run build

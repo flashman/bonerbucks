@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Bonerbucks global styles ── */
+@layer base {
+  body {
+    @apply font-mono bg-white text-black;
+  }
+
+  h1 { @apply text-2xl font-bold uppercase; }
+  h2 { @apply text-xl font-bold uppercase; }
+  h3 { @apply text-lg font-bold uppercase; }
+  h4 { @apply text-base font-bold uppercase; }
+  h5 { @apply text-sm font-bold uppercase; }
+
+  a {
+    @apply underline hover:no-underline;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply border border-black px-4 py-1 text-sm uppercase font-bold
+           hover:bg-black hover:text-white transition-colors cursor-pointer;
+  }
+
+  .btn-danger {
+    @apply border border-red-600 text-red-600 px-4 py-1 text-sm uppercase font-bold
+           hover:bg-red-600 hover:text-white transition-colors cursor-pointer;
+  }
+
+  .input {
+    @apply border border-black px-2 py-1 font-mono text-sm w-full focus:outline-none
+           focus:ring-2 focus:ring-black;
+  }
+
+  .notice {
+    @apply border border-green-600 bg-green-50 text-green-800 px-4 py-2 text-sm uppercase;
+  }
+
+  .error {
+    @apply border border-red-600 bg-red-50 text-red-800 px-4 py-2 text-sm uppercase;
+  }
+
+  /* Sortable table */
+  .sortable {
+    @apply w-full border-collapse text-sm;
+  }
+  .sortable th {
+    @apply border-b-2 border-black px-2 py-1 text-left uppercase text-xs cursor-pointer
+           select-none hover:bg-gray-100;
+  }
+  .sortable td {
+    @apply border-b border-gray-200 px-2 py-1;
+  }
+  .sortable tr:hover td {
+    @apply bg-gray-50;
+  }
+
+  /* Map */
+  #map_canvas {
+    @apply w-full h-96 border border-black;
+  }
+
+  /* Blog posts */
+  .post {
+    @apply mb-8 pb-8 border-b border-gray-200;
+  }
+  .post .media {
+    @apply my-4;
+  }
+  .post .media img,
+  .post .media iframe {
+    @apply max-w-full;
+  }
+}

@@ -1,0 +1,79 @@
+name: Terraform
+
+on:
+  push:
+    branches: [main]
+    paths: [terraform/**]
+  pull_request:
+    branches: [main]
+    paths: [terraform/**]
+
+permissions:
+  contents: read
+  pull-requests: write   # to post plan output as PR comment
+
+jobs:
+  terraform:
+    name: Plan / Apply
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    env:
+      TF_VAR_vercel_api_token:      ${{ secrets.VERCEL_API_TOKEN }}
+      TF_VAR_vercel_team_id:        ${{ secrets.VERCEL_TEAM_ID }}
+      TF_VAR_supabase_access_token: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      TF_VAR_supabase_org_id:       ${{ secrets.SUPABASE_ORG_ID }}
+      TF_VAR_supabase_db_password:  ${{ secrets.SUPABASE_DB_PASSWORD }}
+      TF_VAR_google_maps_api_key:   ${{ secrets.GOOGLE_MAPS_API_KEY }}
+      TF_VAR_production_domain:     ${{ vars.PRODUCTION_DOMAIN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -out=tfplan
+        continue-on-error: true
+
+      # Post plan output as a PR comment
+      - name: Comment plan on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `#### Terraform Plan \`${{ steps.plan.outcome }}\`
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\`
+
+            </details>`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Fail if plan failed
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      # Only apply on pushes to main (i.e. after PR merge)
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
