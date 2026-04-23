@@ -177,7 +177,7 @@ For teams, store state remotely. Uncomment the `backend "s3"` block in `main.tf`
 - Enable billing on the project (Maps has a free tier of $200/month)
 
 ### Image Uploads
-- Max file size: 500 KB (enforced client-side and by Supabase Storage policy)
+- Max file size: 5 MB (enforced client-side and by Supabase Storage policy)
 - Supabase Image Transformation resizes on-the-fly — no need for a separate image processing step
 - Images are stored at `record-images/<timestamp>-<random>.<ext>`
 
