@@ -7,6 +7,9 @@
 /.next/
 /out/
 
+# typescript
+tsconfig.tsbuildinfo
+
 # production
 /build
 
@@ -38,3 +41,4 @@ supabase/.temp
 
 # Emacs
 .#*
+*#*#

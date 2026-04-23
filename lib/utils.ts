@@ -1,5 +1,9 @@
 import { SERIAL_REGEX } from "./types";
 
+// 5MB — adjust as needed
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+
 /** Normalise a serial: uppercase, strip whitespace */
 export function normaliseSerial(raw: string): string {
   return raw.toUpperCase().replace(/\s+/g, "");
