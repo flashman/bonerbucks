@@ -31,18 +31,17 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [geocoding, setGeocoding] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  /** Geocode the typed city using Google Maps Geocoder */
+  /** Geocode the typed city using Nominatim (OpenStreetMap) */
   async function geocodeLocation(value: string) {
     if (!value.trim()) return;
-    if (typeof google === "undefined" || !google.maps) return;
     setGeocoding(true);
     try {
-      const geocoder = new google.maps.Geocoder();
-      const result = await geocoder.geocode({ address: value });
-      if (result.results[0]) {
-        const loc = result.results[0].geometry.location;
-        setLat(parseFloat(loc.lat().toFixed(6)));
-        setLng(parseFloat(loc.lng().toFixed(6)));
+      const res = await fetch(`/api/geocode?q=${encodeURIComponent(value)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.lat && data?.lng) {
+        setLat(parseFloat(data.lat.toFixed(6)));
+        setLng(parseFloat(data.lng.toFixed(6)));
       }
     } catch {
       // silently ignore geocoding failures

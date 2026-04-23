@@ -3,95 +3,109 @@
 import { useEffect, useRef } from "react";
 import type { MapData, MapRecord } from "@/lib/types";
 
-declare global {
-  interface Window {
-    google: typeof google;
-    initBonerbucksMap: () => void;
+/** Deterministic color from a serial string so each boner gets a consistent line color */
+function serialColor(serial: string): string {
+  let hash = 0;
+  for (let i = 0; i < serial.length; i++) {
+    hash = serial.charCodeAt(i) + ((hash << 5) - hash);
   }
+  const h = Math.abs(hash) % 360;
+  return `hsl(${h}, 70%, 45%)`;
 }
 
 export default function HomeMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const mapInstanceRef = useRef<unknown>(null);
 
   useEffect(() => {
-    const markers: google.maps.marker.AdvancedMarkerElement[] = [];
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    let isMounted = true;
 
     async function initMap() {
-      if (!mapRef.current) return;
+      const L = (await import("leaflet")).default;
+      await import("leaflet/dist/leaflet.css");
 
-      const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
-      const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
+      if (!isMounted || !mapRef.current) return;
 
-      const map = new Map(mapRef.current, {
-        center: { lat: 39.5, lng: -98.35 },
-        zoom: 4,
-        mapId: "bonerbucks-map",
-      });
+      const map = L.map(mapRef.current).setView([39.5, -98.35], 4);
       mapInstanceRef.current = map;
 
-      // Fetch all sighting data
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
       const res = await fetch("/api/map");
-      if (!res.ok) return;
+      if (!res.ok || !isMounted) return;
       const data: MapData = await res.json();
 
-      const infoWindow = new google.maps.InfoWindow();
+      data.forEach((sightings: MapRecord[]) => {
+        if (sightings.length === 0) return;
 
-      data.flat().forEach((rec: MapRecord) => {
-        if (!rec.lat || !rec.lng) return;
+        const serial = sightings[0].serial;
+        const color = serialColor(serial);
+        const coords = sightings.map((r) => [r.lat, r.lng] as [number, number]);
 
-        const pin = document.createElement("div");
-        pin.innerHTML = "📍";
-        pin.style.fontSize = "24px";
-        pin.style.cursor = "pointer";
+        // Draw travel path if the boner has been spotted in more than one place
+        if (coords.length > 1) {
+          L.polyline(coords, {
+            color,
+            weight: 2,
+            opacity: 0.7,
+            dashArray: "5, 5",
+          }).addTo(map);
+        }
 
-        const marker = new AdvancedMarkerElement({
-          map,
-          position: { lat: rec.lat, lng: rec.lng },
-          content: pin,
-          title: rec.serial,
-        });
+        // Place a marker at each sighting
+        sightings.forEach((rec, i) => {
+          const isFirst = i === 0;
+          const isLast = i === sightings.length - 1;
 
-        markers.push(marker);
+          // Larger skull for first/last sighting, smaller for intermediate stops
+          const size = isFirst || isLast ? 20 : 14;
+          const icon = L.divIcon({
+            html: `<div style="font-size:${size}px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));">💀</div>`,
+            className: "",
+            iconSize: [size, size],
+            iconAnchor: [size / 2, size / 2],
+            popupAnchor: [0, -12],
+          });
 
-        marker.addListener("click", () => {
           const imgHtml = rec.thumb_url
             ? `<a href="${rec.large_url}" target="_blank">
-                <img src="${rec.thumb_url}" style="max-width:105px;max-height:45px" />
+                 <img src="${rec.thumb_url}" style="max-width:105px;max-height:45px;display:block;margin-top:4px" />
                </a>`
             : "";
-          infoWindow.setContent(`
+
+          const label = isLast ? " 📍 latest" : isFirst && sightings.length > 1 ? " 🏁 first" : "";
+
+          const popupContent = `
             <div style="font-family:monospace;font-size:12px;max-width:200px">
-              <strong><a href="/boners/${rec.serial}">${rec.serial}</a></strong><br/>
+              <strong><a href="/boners/${rec.serial}">${rec.serial}</a></strong>${label}<br/>
               ${rec.location}<br/>
               ${rec.date}<br/>
               ${rec.note ? `<em>${rec.note}</em><br/>` : ""}
               ${imgHtml}
             </div>
-          `);
-          infoWindow.open(map, marker as unknown as google.maps.MVCObject);
+          `;
+
+          L.marker([rec.lat, rec.lng], { icon, title: rec.serial })
+            .addTo(map)
+            .bindPopup(popupContent);
         });
       });
     }
 
-    // Load Google Maps script
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!apiKey) return;
-
-    if (window.google?.maps) {
-      initMap();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=beta&libraries=maps,marker`;
-    script.async = true;
-    script.defer = true;
-    script.onload = initMap;
-    document.head.appendChild(script);
+    initMap();
 
     return () => {
-      markers.forEach((m) => (m.map = null));
+      isMounted = false;
+      if (mapInstanceRef.current) {
+        (mapInstanceRef.current as { remove: () => void }).remove();
+        mapInstanceRef.current = null;
+      }
     };
   }, []);
 
