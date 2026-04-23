@@ -24,7 +24,6 @@ export default function HomeMap() {
 
     async function initMap() {
       const L = (await import("leaflet")).default;
-      await import("leaflet/dist/leaflet.css");
 
       if (!isMounted || !mapRef.current) return;
 

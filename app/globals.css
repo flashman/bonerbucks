@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'leaflet/dist/leaflet.css';
+
 /* ─────────────────────────────────────────────────────────────
    Bonerbucks — styles faithfully ported from the original
    Rails app/assets/stylesheets/application.css
