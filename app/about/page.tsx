@@ -19,7 +19,7 @@ export default function AboutPage() {
         Where&apos;s George
         </a>
         for BoneRs. Since
-        then, and after some occasional hiatus, it's developed into a slightly less crappy
+        then, and after some occasional hiatus, it&apos;s developed into a slightly less crappy
         knock-off, in support of decommodification, artistic expression, and social action,
         through simple creative acts of defacement.
       </p>
