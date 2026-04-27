@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normaliseSerial, isValidSerial, MAX_IMAGE_BYTES, imageUrl } from "@/lib/utils";
@@ -27,25 +27,32 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [lng, setLng] = useState<number | "">(record?.lng ?? "");
   const [note, setNote] = useState(record?.note ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [geocodeError, setGeocodeError] = useState("");
   const [loading, setLoading] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   /** Geocode the typed city using Nominatim (OpenStreetMap) */
   async function geocodeLocation(value: string) {
     if (!value.trim()) return;
     setGeocoding(true);
+    setGeocodeError("");
     try {
       const res = await fetch(`/api/geocode?q=${encodeURIComponent(value)}`);
-      if (!res.ok) return;
+      if (!res.ok) {
+        setGeocodeError("GEOCODING SERVICE UNAVAILABLE. TRY AGAIN.");
+        return;
+      }
       const data = await res.json();
       if (data?.lat && data?.lng) {
         setLat(parseFloat(data.lat.toFixed(6)));
         setLng(parseFloat(data.lng.toFixed(6)));
+      } else {
+        setGeocodeError("COULDN'T LOCATE THAT PLACE. TRY ADDING STATE OR COUNTRY.");
       }
     } catch {
-      // silently ignore geocoding failures
+      setGeocodeError("GEOCODING FAILED. CHECK YOUR CONNECTION AND TRY AGAIN.");
     } finally {
       setGeocoding(false);
     }
@@ -61,9 +68,10 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       return;
     }
     if (!location.trim()) { setError("CITY IS REQUIRED."); return; }
+    if (geocoding) { setError("PLEASE WAIT FOR GEOCODING TO FINISH."); return; }
     if (lat === "" || lng === "") { setError("LAT/LNG IS REQUIRED. MAKE SURE YOUR CITY AUTO-GEOCODED."); return; }
     if (imageFile && imageFile.size > MAX_IMAGE_BYTES) {
-      setError("IMAGE IS TOO LARGE. MAX SIZE IS 500KB.");
+      setError("IMAGE IS TOO LARGE. MAX SIZE IS 5MB.");
       return;
     }
 
@@ -71,10 +79,12 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     try {
       let imagePath: string | undefined;
 
-      // Upload image to Supabase Storage
+      // Upload image to Supabase Storage; prefix with user ID so storage RLS delete policy works
       if (imageFile) {
+        const { data: { user } } = await supabase.auth.getUser();
+        const uid = user?.id ?? "anon";
         const ext = imageFile.name.split(".").pop();
-        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error: uploadErr } = await supabase.storage
           .from("record-images")
           .upload(path, imageFile, { contentType: imageFile.type, upsert: false });
@@ -141,15 +151,16 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         <input
           type="text"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={(e) => { setLocation(e.target.value); setGeocodeError(""); }}
           onBlur={(e) => geocodeLocation(e.target.value)}
           placeholder="Oakland, CA"
           required
-          style={{ fontFamily: "verdana", fontSize: 14, border: "1px solid #999", padding: "2px 4px", width: 300 }}
+          style={{ fontFamily: "verdana", fontSize: 14, border: "1px solid #999", padding: "2px 4px", width: "100%", maxWidth: 300 }}
         />
         {geocoding && <span style={{ fontSize: 11, color: "#777", marginLeft: 8 }}>GEOCODING...</span>}
-        {lat !== "" && !geocoding && <span style={{ fontSize: 11, color: "green", marginLeft: 8 }}>✓ LOCATED</span>}
-        {lat !== "" && <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{Number(lat).toFixed(4)}, {Number(lng).toFixed(4)}</p>}
+        {lat !== "" && !geocoding && !geocodeError && <span style={{ fontSize: 11, color: "green", marginLeft: 8 }}>✓ LOCATED</span>}
+        {lat !== "" && !geocodeError && <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{Number(lat).toFixed(4)}, {Number(lng).toFixed(4)}</p>}
+        {geocodeError && <p style={{ fontSize: 11, color: "red", marginTop: 2 }}>{geocodeError}</p>}
       </div>
 
       <div className="field-row">
@@ -157,20 +168,34 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          style={{ fontFamily: "verdana", fontSize: 14, border: "1px solid #999", padding: "2px 4px", width: 500, height: 100 }}
+          style={{ fontFamily: "verdana", fontSize: 14, border: "1px solid #999", padding: "2px 4px", width: "100%", maxWidth: 500, height: 100 }}
           placeholder="Tell us about this boner..."
         />
       </div>
 
       <div className="field-row">
-        <h4>IMAGE (IF YOU WANT... MAX SIZE IS 500KB):</h4>
+        <h4>IMAGE (IF YOU WANT... MAX SIZE IS 5MB):</h4>
         <input
-          ref={fileRef}
           type="file"
           accept="image/*"
           style={{ fontFamily: "verdana", fontSize: 13 }}
-          onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            setImageFile(file);
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(file ? URL.createObjectURL(file) : null);
+          }}
         />
+        {previewUrl && (
+          <div style={{ marginTop: 4 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={previewUrl} alt="Preview" style={{ maxWidth: 105, maxHeight: 45, display: "block" }} />
+            <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 2 }}>
+              {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
+              {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
+            </p>
+          </div>
+        )}
         {record?.image_path && !imageFile && (
           <div style={{ marginTop: 4 }}>
             <SafeImage
@@ -187,8 +212,8 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       <input
         type="submit"
         value={loading ? "SAVING..." : "DONE"}
-        disabled={loading}
-        style={{ opacity: loading ? 0.5 : 1 }}
+        disabled={loading || geocoding}
+        style={{ opacity: loading || geocoding ? 0.5 : 1 }}
       />
     </form>
   );

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { normaliseSerial, isValidSerial } from "@/lib/utils";
+import { normaliseSerial, isValidSerial, parseAnonRecords } from "@/lib/utils";
 import { z } from "zod";
 import { cookies } from "next/headers";
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   // Track anon sighting in cookie so the creator can edit it later
   if (!user) {
     const existing = cookieStore.get("anon_records")?.value;
-    const ids: number[] = existing ? JSON.parse(existing) : [];
+    const ids: number[] = parseAnonRecords(existing);
     ids.push(record.id);
     const res = NextResponse.json(record, { status: 201 });
     res.cookies.set("anon_records", JSON.stringify(ids), {

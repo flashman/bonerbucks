@@ -58,4 +58,3 @@ export interface MapRecord {
 export type MapData = MapRecord[][];
 
 export const SERIAL_REGEX = /^[A-Z][0-9]{8}[A-Z]$/;
-export const MAX_IMAGE_BYTES = 500 * 1024; // 500 KB

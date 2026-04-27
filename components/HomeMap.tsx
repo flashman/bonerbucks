@@ -3,6 +3,10 @@
 import { useEffect, useRef } from "react";
 import type { MapData, MapRecord } from "@/lib/types";
 
+function escHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 /** Deterministic color from a serial string so each boner gets a consistent line color */
 function serialColor(serial: string): string {
   let hash = 0;
@@ -83,9 +87,9 @@ export default function HomeMap() {
           const popupContent = `
             <div style="font-family:monospace;font-size:12px;max-width:200px">
               <strong><a href="/boners/${rec.serial}">${rec.serial}</a></strong>${label}<br/>
-              ${rec.location}<br/>
+              ${escHtml(rec.location)}<br/>
               ${rec.date}<br/>
-              ${rec.note ? `<em>${rec.note}</em><br/>` : ""}
+              ${rec.note ? `<em>${escHtml(rec.note)}</em><br/>` : ""}
               ${imgHtml}
             </div>
           `;
