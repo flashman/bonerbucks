@@ -44,7 +44,15 @@ export default async function BonersPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <h2>TRACKED BONERS</h2>
+      <div>
+        <h2>TRACKED BONERS</h2>
+        {q && (
+          <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>
+            results for &ldquo;{q}&rdquo;{" "}
+            <Link href="/boners" style={{ color: "#aaa" }}>clear ×</Link>
+          </p>
+        )}
+      </div>
 
       {error && <p className="error">{error.message}</p>}
 
