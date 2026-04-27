@@ -6,58 +6,95 @@ export default function AboutPage() {
   return (
     <div className="max-w-2xl space-y-6 text-sm leading-relaxed">
       <h2>ABOUT BONERBUCKS.ORG</h2>
-
       <p>
-        Welcome to bonerbucks.org, the boner tracking project. If you&apos;ve found
-        your way to this site, then you have most likely stumbled upon a boner buck.
-        Congratulations! And thank you for taking the time to visit. Before you read
-        any further, track your boner. We can only do this together.
+        Welcome to bonerbucks.org, the money beautification project. If
+        you&apos;ve found your way to this site, then you have most likely
+        stumbled upon a BoneRbuck. Congratulations! And thank you for taking the
+        time to visit. Before you read any further, track your BoneR. Thanks!
       </p>
-
       <p>
-        How much better would the world be if you could buy your cup of coffee with a
-        boner. How much better would the world be if we were not driven by the desire
-        to have but instead by the desire to give. What if the conversation went:{" "}
-        <em>
-          &ldquo;Hey man, I&apos;m down on my luck. Can you lend me a boner?&rdquo;
-          &ldquo;Sure man, of course. Keep it too. That&apos;s what it means to be
-          family.&rdquo;
-        </em>{" "}
-        Our mission is to make every dollar in circulation a boner buck. Through the
-        simple act of defacing currency, of &ldquo;bonerfication,&rdquo; we strip
-        away that bill&apos;s god-given importance, leaving it exposed to the world
-        for what it is. At worst, a piece of paper, and at best a device of love.
-        Through this simple act, we hope to change the way that people relate to
-        money and more importantly to each other.
-      </p>
-
-      <p>
-        Boners are great, but they are just the start. As the project grows, we want
-        to encourage and support the collective effort of money beautification in the
-        US and abroad. Check out some of these fine websites for wonderful examples:{" "}
-        <a href="http://artasmoney.com">exchangehibition bank</a>,{" "}
-        <a href="http://www.flickr.com/groups/612007@N21/pool/">
-          defaced presidents on Flickr
+        Bonerbucks.org was started in 2012, as the garbage idea of a graduate
+        student seeking low brow respite from a high brow world. Initially it
+        was just going to be a crappy knock-off of <a href="https://www.wheresgeorge.com/">
+        Where&apos;s George
         </a>
-        ,{" "}
-        <a href="http://www.johnnyburrito.com/uglymoney.htm">Johnny Burrito</a>. So,
-        when you find a boner in your hand, express yourself, make that boner
-        beautiful, and share it with the world.
+        for BoneRs. Since
+        then, and after some occasional hiatus, it's developed into a slightly less crappy
+        knock-off, in support of decommodification, artistic expression, and social action,
+        through simple creative acts of defacement.
+      </p>
+
+
+      <p>
+        We&apos;re certainly not the first to do this — please check out some of these more
+        established websites for some wonderful and creative examples:
+      </p>
+      <ul className="list-none ml-4">
+        <li>
+          <a href="http://artasmoney.com">Exchangehibition Bank</a>
+        </li>
+        <li>
+          <a href="http://www.flickr.com/groups/612007@N21/pool/">
+            Deface presidents on Flickr
+          </a>
+        </li>
+        <li>
+          <a href="http://www.johnnyburrito.com/uglymoney.htm">
+            Johnny Burrito
+          </a>
+        </li>
+      </ul>
+
+      <h2>LEGAL MATTERS</h2>
+      <p>
+        You may be wondering, is it legal to deface paper currency? As its written:
+      </p>
+
+      <blockquote className="italic ml-4">
+        Whoever mutilates, cuts, defaces, disfigures, or perforates, or unites or cements
+        together, or does any other thing to any bank bill, draft, note, or other evidence of debt
+        issued by any national banking association, or Federal Reserve bank, or the Federal
+        Reserve System, with intent to render such bank bill, draft, note, or other evidence of
+        debt unfit to be reissued, shall be fined under this title or imprisoned not more than six
+        months, or both. - 18 U.S. Code § 333
+      </blockquote>
+
+      <p>
+        and
+      </p>
+
+      <blockquote className="italic ml-4">
+        Whoever designs, engraves, prints, makes, or executes, or utters, issues, distributes,
+        circulates, or uses any business or professional card, notice, placard, circular, handbill,
+        or advertisement in the likeness or similitude of any obligation or security of the United
+        States issued under or authorized by any Act of Congress or writes, prints, or otherwise
+        impresses upon or attaches to any such instrument, obligation, or security, or any coin of
+        the United States, any business or professional card, notice, or advertisement, or any
+        notice or advertisement whatever, shall be fined under this title. Nothing in this section
+        applies to evidence of postage payment approved by the United States Postal Service. - 18
+        U.S. Code § 475
+      </blockquote>
+
+      <p>
+        So in short… probably not ¯\_(ツ)_/¯
       </p>
 
       <p>
-        If you like what we&apos;re doing and want to support the effort, consider
-        starting your own bonerbuck campaign. Drop us a line at{" "}
-        <a href="mailto:contact@bonerbucks.org">contact@bonerbucks.org</a> and
-        we&apos;ll send you your very own starter kit, complete with stamps and ink.
-        Or just grab some pens/sharpies/white-out and do your thing. Every boner is
-        beautiful.
+        With love,<br/>
+        M
       </p>
-
-      <div style={{ textAlign: "center" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/bonerbucksAtTransformoneyTree-s.gif" width={600} height={450} alt="Bonerbucks at Transformoney Tree" />
-      </div>
+        <div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/bonerbucksAtTransformoneyTree-s.gif"
+            width={600}
+            height={450}
+            alt="Bonerbucks at Transformoney Tree"
+          />
+          <p className="italic">
+            BoneRbucks at the Transformoney Tree, Burning Man 2012
+          </p>
+        </div>
     </div>
   );
 }
