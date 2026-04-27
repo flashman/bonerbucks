@@ -47,7 +47,7 @@ export default function AboutPage() {
 
       <h2>LEGAL MATTERS</h2>
       <p>
-        You may be wondering, is it legal to deface paper currency? As its written:
+        You may be wondering, is it illegal to deface paper currency? As its written:
       </p>
 
       <blockquote className="italic ml-4">
