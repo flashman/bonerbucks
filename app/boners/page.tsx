@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { imageUrl, formatDate } from "@/lib/utils";
 import type { BonerWithStats } from "@/lib/types";
-import SortableTable from "@/components/SortableTable";
+import BonersClient from "@/components/BonersClient";
 
 export const revalidate = 30;
 
@@ -22,6 +22,7 @@ export default async function BonersPage() {
     serial: b.serial,
     sightings: b.sighting_count,
     last_seen: b.last_seen_at ? formatDate(b.last_seen_at) : "—",
+    last_seen_raw: b.last_seen_at ?? null,
     location: b.last_location ?? "—",
     thumb_url: b.first_image_path
       ? imageUrl(supabaseUrl, b.first_image_path, "thumb")
@@ -33,11 +34,7 @@ export default async function BonersPage() {
 
   return (
     <div className="space-y-6">
-      <h2>TRACKED BONERS</h2>
-
-      {error && <p className="error">{error.message}</p>}
-
-      <SortableTable rows={rows} />
+      <BonersClient rows={rows} error={error?.message} />
 
       <h3>
         CAN&apos;T FIND YOUR BONER?{" "}

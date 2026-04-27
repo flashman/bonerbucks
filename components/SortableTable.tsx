@@ -4,10 +4,11 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 
-interface Row {
+export interface Row {
   serial: string;
   sightings: number;
   last_seen: string;
+  last_seen_raw: string | null;
   location: string;
   thumb_url: string | null;
   large_url: string | null;
@@ -20,24 +21,18 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
   const [sortKey, setSortKey] = useState<SortKey>("serial");
   const [dir, setDir] = useState<Dir>("asc");
   const [lightbox, setLightbox] = useState<string | null>(null);
-  const [filter, setFilter] = useState("");
 
   function handleSort(key: SortKey) {
     if (key === sortKey) setDir(dir === "asc" ? "desc" : "asc");
     else { setSortKey(key); setDir("asc"); }
   }
 
-  const filtered = filter
-    ? rows.filter((r) => {
-        const q = filter.toLowerCase();
-        return r.serial.toLowerCase().includes(q) || r.location.toLowerCase().includes(q);
-      })
-    : rows;
-
-  const sorted = [...filtered].sort((a, b) => {
-    const av = a[sortKey], bv = b[sortKey];
-    if (av == null) return 1;
-    if (bv == null) return -1;
+  const sorted = [...rows].sort((a, b) => {
+    // Sort last_seen by raw ISO timestamp so chronological order is correct
+    const av = sortKey === "last_seen" ? (a.last_seen_raw ?? "") : a[sortKey];
+    const bv = sortKey === "last_seen" ? (b.last_seen_raw ?? "") : b[sortKey];
+    if (av == null || av === "") return 1;
+    if (bv == null || bv === "") return -1;
     const cmp = typeof av === "number"
       ? (av as number) - (bv as number)
       : String(av).localeCompare(String(bv));
@@ -63,14 +58,6 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
           document.body
         )
       }
-
-      <input
-        type="text"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        placeholder="SEARCH BY SERIAL OR LOCATION..."
-        style={{ fontFamily: "verdana", fontSize: 13, border: "1px solid #999", padding: "2px 6px", width: "100%", maxWidth: 320, marginBottom: 8 }}
-      />
 
       <table className="sortable w-full">
         <thead>
