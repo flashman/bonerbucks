@@ -12,18 +12,18 @@ export default function MakePage() {
           Download the stamp templates
           <br />
           <br />
-          <div style={{ textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 32 }}>
             <a href="/B.gif" className="stamp">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/B.gif" height={150} style={{ marginRight: 30 }} alt="B stamp" />
+              <img src="/B.gif" style={{ height: 90, width: "auto" }} alt="B stamp" />
             </a>
             <a href="/R.gif" className="stamp">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/R.gif" height={150} alt="R stamp" />
+              <img src="/R.gif" style={{ height: 90, width: "auto" }} alt="R stamp" />
             </a>
             <a href="/trackthisboner.gif" className="stamp">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/trackthisboner.gif" height={150} alt="Track this boner stamp" />
+              <img src="/trackthisboner.gif" style={{ height: 90, width: "auto" }} alt="Track this boner stamp" />
             </a>
           </div>
           <br />
@@ -32,16 +32,20 @@ export default function MakePage() {
           Take them to your local stamp shop.
           <br />
           (The R and B stamps should be 0.7in tall, and the Tracker stamp should be 0.8in wide.)
-          <div style={{ textAlign: "center" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stamps.png" alt="Stamps" style={{ maxWidth: "100%" }} />
+          <div style={{ marginTop: 8, textAlign: "center" }}>
+            <a href="/stamps.png" className="stamp" target="_blank" rel="noopener noreferrer" style={{ display: "inline-block" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/stamps.png" alt="Stamps" style={{ maxWidth: 420 }} />
+            </a>
           </div>
         </li>
         <li>
           Make a boner.
-          <div style={{ textAlign: "center" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/boner.png" alt="Boner buck" style={{ maxWidth: "100%" }} />
+          <div style={{ marginTop: 8, textAlign: "center" }}>
+            <a href="/boner.png" className="stamp" target="_blank" rel="noopener noreferrer" style={{ display: "inline-block" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/boner.png" alt="Boner buck" style={{ maxWidth: 420 }} />
+            </a>
           </div>
         </li>
       </ol>
