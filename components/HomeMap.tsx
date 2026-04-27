@@ -74,7 +74,7 @@ export default function HomeMap() {
           });
 
           const imgHtml = rec.thumb_url
-            ? `<a href="${rec.large_url}" target="_blank">
+            ? `<a href="/boners/${rec.serial}">
                  <img src="${rec.thumb_url}" style="max-width:105px;max-height:45px;display:block;margin-top:4px" />
                </a>`
             : "";

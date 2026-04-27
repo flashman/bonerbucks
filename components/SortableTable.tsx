@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { createPortal } from "react-dom";
 import Link from "next/link";
+import Lightbox from "@/components/Lightbox";
 
 export interface Row {
   serial: string;
@@ -18,8 +18,8 @@ type SortKey = keyof Row;
 type Dir = "asc" | "desc";
 
 export default function SortableTable({ rows }: { rows: Row[] }) {
-  const [sortKey, setSortKey] = useState<SortKey>("serial");
-  const [dir, setDir] = useState<Dir>("asc");
+  const [sortKey, setSortKey] = useState<SortKey>("last_seen");
+  const [dir, setDir] = useState<Dir>("desc");
   const [lightbox, setLightbox] = useState<string | null>(null);
 
   function handleSort(key: SortKey) {
@@ -46,18 +46,7 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
 
   return (
     <>
-      {lightbox && typeof document !== "undefined" &&
-        createPortal(
-          <div
-            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 cursor-pointer"
-            onClick={() => setLightbox(null)}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={lightbox} alt="Boner" className="max-w-full max-h-full" />
-          </div>,
-          document.body
-        )
-      }
+      {lightbox && <Lightbox src={lightbox} onClose={() => setLightbox(null)} />}
 
       <table className="sortable w-full">
         <thead>
