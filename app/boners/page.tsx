@@ -2,11 +2,14 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { imageUrl, formatDate } from "@/lib/utils";
 import type { BonerWithStats } from "@/lib/types";
-import BonersClient from "@/components/BonersClient";
+import SortableTable from "@/components/SortableTable";
 
-export const revalidate = 30;
+interface PageProps {
+  searchParams: Promise<{ q?: string }>;
+}
 
-export default async function BonersPage() {
+export default async function BonersPage({ searchParams }: PageProps) {
+  const { q } = await searchParams;
   const supabase = await createClient();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
@@ -18,7 +21,7 @@ export default async function BonersPage() {
 
   const boners: BonerWithStats[] = data ?? [];
 
-  const rows = boners.map((b) => ({
+  let rows = boners.map((b) => ({
     serial: b.serial,
     sightings: b.sighting_count,
     last_seen: b.last_seen_at ? formatDate(b.last_seen_at) : "—",
@@ -32,9 +35,20 @@ export default async function BonersPage() {
       : null,
   }));
 
+  if (q) {
+    const query = q.toLowerCase();
+    rows = rows.filter(
+      (r) => r.serial.toLowerCase().includes(query) || r.location.toLowerCase().includes(query)
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <BonersClient rows={rows} error={error?.message} />
+      <h2>TRACKED BONERS</h2>
+
+      {error && <p className="error">{error.message}</p>}
+
+      <SortableTable rows={rows} />
 
       <h3>
         CAN&apos;T FIND YOUR BONER?{" "}

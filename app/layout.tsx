@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from 'next/link'
 import "./globals.css";
 import Nav from "@/components/Nav";
+import NavSearch from "@/components/NavSearch";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -60,7 +61,7 @@ export default async function RootLayout({
             <span className="about">
               <Link href="/about">ABOUT</Link> | <Link href="/blog">BLOG</Link>
             </span>
-            <span className="copyright">&copy; COPYRIGHT 2014, YOUR MOM</span>
+            <span className="copyright">&copy; Copyright 2026, Call Your Mom</span>
           </h5>
         </div>
       </body>
@@ -79,6 +80,7 @@ function HoverLogin({
   if (user) {
     return (
       <h6 className="login" style={{ fontSize: 12 }}>
+        <NavSearch /> |{" "}
         <Link href="/account">ACCOUNT ({profile?.name})</Link> |{" "}
         <form action="/api/auth/logout" method="POST" style={{ display: "inline" }}>
           <button type="submit" style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontFamily: "inherit", fontSize: "inherit" }}>
@@ -90,7 +92,7 @@ function HoverLogin({
   }
   return (
     <h6 className="login" style={{ fontSize: 12 }}>
-      <Link href="/login">LOGIN</Link>
+      <NavSearch /> | <Link href="/login">LOGIN</Link>
     </h6>
   );
 }
