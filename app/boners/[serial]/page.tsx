@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { imageUrl, parseAnonRecords } from "@/lib/utils";
 import BonerRecordRow from "@/components/BonerRecordRow";
+import BonerMap from "@/components/BonerMap";
 import type { Record as BRecord } from "@/lib/types";
 
 interface Props {
@@ -81,6 +82,8 @@ export default async function BonerShowPage({ params }: Props) {
           )}
         </tbody>
       </table>
+
+      <BonerMap serial={normSerial} sightings={enriched} />
 
       <h3>
         HAVE YOU SEEN THIS BONER?{" "}

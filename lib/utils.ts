@@ -38,6 +38,14 @@ export function formatDate(iso: string): string {
   });
 }
 
+export function escHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 /** Pull anonymous record IDs out of the cookie value */
 export function parseAnonRecords(cookieValue: string | undefined): number[] {
   if (!cookieValue) return [];

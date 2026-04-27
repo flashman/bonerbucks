@@ -20,13 +20,21 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
   const [sortKey, setSortKey] = useState<SortKey>("serial");
   const [dir, setDir] = useState<Dir>("asc");
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
 
   function handleSort(key: SortKey) {
     if (key === sortKey) setDir(dir === "asc" ? "desc" : "asc");
     else { setSortKey(key); setDir("asc"); }
   }
 
-  const sorted = [...rows].sort((a, b) => {
+  const filtered = filter
+    ? rows.filter((r) => {
+        const q = filter.toLowerCase();
+        return r.serial.toLowerCase().includes(q) || r.location.toLowerCase().includes(q);
+      })
+    : rows;
+
+  const sorted = [...filtered].sort((a, b) => {
     const av = a[sortKey], bv = b[sortKey];
     if (av == null) return 1;
     if (bv == null) return -1;
@@ -55,6 +63,14 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
           document.body
         )
       }
+
+      <input
+        type="text"
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        placeholder="SEARCH BY SERIAL OR LOCATION..."
+        style={{ fontFamily: "verdana", fontSize: 13, border: "1px solid #999", padding: "2px 6px", width: "100%", maxWidth: 320, marginBottom: 8 }}
+      />
 
       <table className="sortable w-full">
         <thead>

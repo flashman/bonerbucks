@@ -2,10 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { MapData, MapRecord } from "@/lib/types";
-
-function escHtml(str: string): string {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
+import { escHtml } from "@/lib/utils";
 
 /** Deterministic color from a serial string so each boner gets a consistent line color */
 function serialColor(serial: string): string {
