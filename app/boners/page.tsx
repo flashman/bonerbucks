@@ -48,8 +48,7 @@ export default async function BonersPage({ searchParams }: PageProps) {
         <h2>TRACKED BONERS</h2>
         {q && (
           <p style={{ fontFamily: '"futura","univers","helvetica",sans-serif', fontWeight: "bold", fontSize: 12, color: "#aaa", textAlign: "center", marginTop: 4 }}>
-            results for &ldquo;{q}&rdquo;{" "}
-            <Link href="/boners" style={{ color: "#aaa" }}>clear ×</Link>
+            RESULTS FOR &ldquo;{q.toUpperCase()}&rdquo; | <Link href="/boners" style={{ color: "#aaa" }}>CLEAR</Link>
           </p>
         )}
       </div>
