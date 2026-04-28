@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import NavSearch from "@/components/NavSearch";
 import { createClient } from "@/lib/supabase/server";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: "Bonerbucks",
@@ -64,6 +65,7 @@ export default async function RootLayout({
             <span className="copyright">&copy; Copyright 2026, Call Your Mom</span>
           </h5>
         </div>
+        <GoogleAnalytics gaId="G-5XW7105XYK" />
       </body>
     </html>
   );
