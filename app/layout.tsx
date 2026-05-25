@@ -35,7 +35,7 @@ export default async function RootLayout({
       <body>
         {/* ── HEADER — matches original _head.html.erb ── */}
         <div className="head">
-          <div style={{ textAlign: "right", maxWidth: 700, margin: "0 auto", height: 25 }}>
+          <div style={{ textAlign: "right", maxWidth: 700, margin: "0 auto", height: 25, paddingRight: "4px" }}>
             <HoverLogin user={user} profile={profile} />
           </div>
           <Link href="/">
@@ -60,9 +60,9 @@ export default async function RootLayout({
         <div className="foot">
           <h5>
             <span className="about">
-              <Link href="/about">ABOUT</Link> | <Link href="/blog">BLOG</Link>
+              <Link href="/about">ABOUT</Link> &nbsp; <Link href="/blog">BLOG</Link>
             </span>
-            <span className="copyright">&copy; Copyright 2026</span>
+            <span className="copyright">&copy; 2026 Bonerbucks Inc.</span>
           </h5>
         </div>
         <GoogleAnalytics gaId="G-5XW7105XYK" />
