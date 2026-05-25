@@ -131,7 +131,7 @@ export default function FeaturedBoner({ candidates }: { candidates: FeaturedBone
           href={`/boners/${boner.serial}`}
           style={{
             flexShrink: 0,
-            width: 160,
+            width: "50%",
             background: "#f5f5f5",
             borderRight: "1px solid #ccc",
             display: "flex",
