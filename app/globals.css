@@ -62,6 +62,48 @@ th.tiny,   td.tiny   { width: 50px; }
 th.wide,   td.wide   { width: 250px; }
 table.sortable th { cursor: pointer; }
 
+@media (max-width: 600px) {
+  table.sortable { display: block; }
+  table.sortable thead { display: none; }
+  table.sortable tbody { display: block; }
+  table.sortable tr {
+    display: block;
+    position: relative;
+    padding: 10px 0;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  table.sortable tr:last-child { border-bottom: none; }
+  table.sortable td {
+    display: block;
+    width: auto !important;
+    padding: 2px 0;
+    border: none;
+    text-align: left !important;
+  }
+  table.sortable td[data-label="BONER"] {
+    font-family: "futura", "univers", "helvetica", sans-serif;
+    font-weight: bold;
+    font-size: 15px;
+    padding-right: 70px;
+  }
+  table.sortable td[data-label="PIC"] {
+    position: absolute;
+    top: 10px;
+    right: 0;
+  }
+  table.sortable td::before {
+    content: attr(data-label) " ";
+    font-family: "futura", "univers", "helvetica", sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  table.sortable td[data-label="BONER"]::before,
+  table.sortable td[data-label="PIC"]::before { content: none; }
+}
+
 .error, .notice { color: red; }
 .left  { text-align: left; }
 .right { text-align: right; }

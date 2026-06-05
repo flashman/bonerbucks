@@ -61,13 +61,13 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
         <tbody>
           {sorted.map((row) => (
             <tr key={row.serial}>
-              <td>
+              <td data-label="BONER">
                 <Link href={`/boners/${row.serial}`}>{row.serial}</Link>
               </td>
-              <td className="text-center">{row.sightings}</td>
-              <td>{row.last_seen}</td>
-              <td>{row.location}</td>
-              <td>
+              <td data-label="SIGHTINGS" className="text-center">{row.sightings}</td>
+              <td data-label="LAST SEEN">{row.last_seen}</td>
+              <td data-label="IN">{row.location}</td>
+              <td data-label="PIC">
                 {row.thumb_url && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
