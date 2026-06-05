@@ -104,7 +104,7 @@ table.sortable th { cursor: pointer; }
 }
 .post:last-child { border-bottom: none; }
 
-.post img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+.post img { max-width: 100% !important; height: auto; display: block; margin: 0 auto; }
 
 .post h5 {
   margin-bottom: 8px;
