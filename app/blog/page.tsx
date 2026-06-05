@@ -56,7 +56,9 @@ export default async function BlogPage() {
         <h5><a>Nov 15 2013</a></h5>
         <p>Mark Wagner expores the material quality of money to stuning effect!!</p>
         <div className="media">
-          <iframe src="//player.vimeo.com/video/79148964" width={500} height={281} allowFullScreen title="Mark Wagner - Money is Material" />
+          <div className="embed-wrapper">
+            <iframe src="//player.vimeo.com/video/79148964" allowFullScreen title="Mark Wagner - Money is Material" />
+          </div>
           <p><a href="http://vimeo.com/79148964">Mark Wagner - Money is Material</a> from <a href="http://vimeo.com/avantgardediaries">The Avant/Garde Diaries</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
         </div>
       </div>
@@ -87,7 +89,6 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Aug 12 2013</a></h5>
         <p>It that time of year...crunch time for all those residents of Black Rock City. As you scramble to the finish line, you are probably noticing that your wallet feels just a little bit lighter than usual. This is normal, an unspoken reality and tension that underlies the event. In honor of this fact, I am devoting this post to the beautiful currencies of Black Rock City.</p>
@@ -118,7 +119,6 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>August 2 2013</a></h5>
         <p>Gifting, by John &quot;Halcyon&quot; Styn (reposted from <a href="http://blog.burningman.com/2013/08/playa-tips/tips-tricks-5-gifting/">the burning blog</a>)</p>
@@ -134,16 +134,16 @@ export default async function BlogPage() {
         <p><strong>10) EVERY interaction can be seen as an act of Gifting.</strong></p>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>July 30 2013</a></h5>
         <p>The folks from <a href="http://www.artasmoney.com/">Art as Money</a> just released a short collection of interviews on money and society, taken during Burning Man 2012. Enjoy!</p>
         <div className="media">
-          <iframe width={560} height={315} src="//www.youtube.com/embed/rr6LtOCFwVM" allowFullScreen title="Art as Money interviews" />
+          <div className="embed-wrapper">
+            <iframe src="//www.youtube.com/embed/rr6LtOCFwVM" allowFullScreen title="Art as Money interviews" />
+          </div>
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>April 7 2013</a></h5>
         <p>Hey check it out. Another artist abusing the system!!! <a href="http://en.wikipedia.org/wiki/J._S._G._Boggs">J.S.G Boggs</a> creates detailed one sided drawings of bank notes, sometimes modified and sometimes not, then spends them, or trades them, depending on how you count. Collectors will pay upwards of a thousand dollars for one of these notes, but he asks that they be spent at face value.</p>
@@ -157,7 +157,6 @@ export default async function BlogPage() {
         <p>He makes no effort to conceal the counterfeit nature of the bills. Instead, he invites the recipient to treat the bills as legal tender despite the fact that the bills have no monetary value. He lived for a year without money by persuading people to take his bills at face value.</p>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Jan 13 2013</a></h5>
         <p>I asked someone from the financial industry how I might write &quot;boner&quot; on a billion dollars. He seemed confused by the question. But with the potential minting of a <a href="http://www.wired.com/business/2013/01/trillion-dollar-coin-inventor/">trillion dollar coin</a> to stave off the most recent debt crisis, I think my problem might be solved.</p>
@@ -166,7 +165,6 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Jan 3 2013</a></h5>
         <p>Welcome to a new year. I&apos;m really optimistic about this one. 2013 has a good ring to it...kindof feels like the future. Now, an update on the <a href="http://blogs.villagevoice.com/runninscared/2012/12/the_rolling_jub.php">Rolling Jubilee</a> (via the Village Voice). Aside from some legal hiccups, it sounds like they have managed to get some well deserved attention and support.</p>
@@ -175,7 +173,6 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Dec 23 2012</a></h5>
         <p>It takes everyone.</p>
@@ -184,7 +181,6 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Dec 10 2012</a></h5>
         <p>I think I&apos;m about two years too late with this one...but James Charles is doing some wonderful art work on the dollar bills. What&apos;s really impressive is the care with which he has taken to make his modified bills nearly indistinguishable from the real thing. He has gone so far as to track down the inks used by the mint. Sadly, you won&apos;t find this money in circulation. You can see some of his works <a href="http://www.shootinggallerysf.com/artists/james-charles/">here</a>.</p>
@@ -193,7 +189,6 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Dec 5 2012</a></h5>
         <p>An excellent use of money. A little rough for my taste. (via the <a href="http://theelectrictemple.tumblr.com/post/24329130073">internet</a>)</p>
@@ -202,7 +197,6 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Dec 4 2012</a></h5>
         <p>Just ran across another wonderful project in money modification and community building. This one comes from Christian Nold &amp; Imagine IC of Amsterdam. <q>The Bijlmer Euro is a complementary local currency for South East of Amsterdam which creates economic benefits for local people, inspires social connections and builds a complex network identity for the Bijlmer.</q>&mdash;<a href="http://www.bijlmereuro.net">www.bijlmereuro.net</a></p>
@@ -211,24 +205,25 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Nov 29 2012</a></h5>
         <p><a href="http://www.telegraph.co.uk/finance/financialcrisis/9682263/Occupy-Wall-St-protesters-wipe-5m-off-Americas-debt.html">Occupy Wall St protesters wipe $5m off America&apos;s debt</a>. Visit <a href="http://rollingjubilee.org/">rollingjubilee.org</a> to help.</p>
         <div className="media">
-          <iframe width={560} height={315} src="http://www.youtube.com/embed/1Qs9w1XlJKE" allowFullScreen title="Rolling Jubilee" />
+          <div className="embed-wrapper">
+            <iframe src="http://www.youtube.com/embed/1Qs9w1XlJKE" allowFullScreen title="Rolling Jubilee" />
+          </div>
         </div>
       </div>
 
-      <br />
       <div className="post">
         <h5><a>Nov 25 2012</a></h5>
         <p>What if money didn&apos;t matter? (via <a href="http://blog.artasmoney.com">art as money</a>)</p>
         <div className="media">
-          <iframe width={560} height={315} src="http://www.youtube.com/embed/8nif01WZ9aI" allowFullScreen title="What if money didn't matter?" />
+          <div className="embed-wrapper">
+            <iframe src="http://www.youtube.com/embed/8nif01WZ9aI" allowFullScreen title="What if money didn't matter?" />
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
