@@ -67,8 +67,10 @@ table.sortable th { cursor: pointer; }
   table.sortable thead { display: none; }
   table.sortable tbody { display: block; }
   table.sortable tr {
-    display: block;
-    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    column-gap: 10px;
     padding: 10px 0;
     border-bottom: 1px solid #e8e8e8;
   }
@@ -81,15 +83,24 @@ table.sortable th { cursor: pointer; }
     text-align: left !important;
   }
   table.sortable td[data-label="BONER"] {
+    grid-column: 1; grid-row: 1;
     font-family: "futura", "univers", "helvetica", sans-serif;
     font-weight: bold;
     font-size: 15px;
-    padding-right: 70px;
   }
+  table.sortable td[data-label="SIGHTINGS"] { grid-column: 1; grid-row: 2; }
+  table.sortable td[data-label="LAST SEEN"]  { grid-column: 1; grid-row: 3; }
+  table.sortable td[data-label="IN"]         { grid-column: 1; grid-row: 4; }
   table.sortable td[data-label="PIC"] {
-    position: absolute;
-    top: 10px;
-    right: 0;
+    grid-column: 2; grid-row: 1 / 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  table.sortable td[data-label="PIC"] img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
   }
   table.sortable td::before {
     content: attr(data-label) " ";
