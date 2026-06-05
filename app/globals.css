@@ -123,7 +123,8 @@ table.sortable th { cursor: pointer; }
 }
 
 .post .media { text-align: center; margin-top: 8px; }
-.post .media img { max-width: 100%; height: auto; }
+.post .media a { display: block; }
+.post .media img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 .post .media .source { font-size: 10pt; }
 
 /* Responsive 16:9 iframe container */
