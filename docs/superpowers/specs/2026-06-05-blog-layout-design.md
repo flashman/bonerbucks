@@ -84,13 +84,17 @@ Replace the bare `<h5><a>` date treatment in `.post` with a black badge style th
 }
 ```
 
+### Fix 4 — Remove stray `<br />` elements
+
+`app/blog/page.tsx` has several bare `<br />` elements between hardcoded posts. With the new `border-bottom` + padding on `.post`, these create inconsistent extra gaps — some post pairs would have more space than others. Remove all `<br />` elements that appear between `.post` divs; the CSS spacing handles separation uniformly.
+
 ## Files Changed
 
 | File | Change |
 |------|--------|
 | `app/blog/layout.tsx` | **Delete** |
 | `app/globals.css` | Add `.embed-wrapper`, update `.post` badge styling, fix img `max-width` |
-| `app/blog/page.tsx` | Wrap each `<iframe>` in `<div className="embed-wrapper">`, remove hardcoded width/height |
+| `app/blog/page.tsx` | Wrap each `<iframe>` in `<div className="embed-wrapper">`, remove hardcoded width/height, remove stray `<br />` elements between posts |
 
 ## Delivery
 
