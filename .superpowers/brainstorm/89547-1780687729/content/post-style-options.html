@@ -1,0 +1,158 @@
+<style>
+  .preview-post {
+    font-family: verdana, sans-serif;
+    font-size: 13px;
+    color: #333;
+    text-align: left;
+    max-width: 100%;
+  }
+  .preview-post a { color: #555; text-decoration: none; }
+
+  /* Option A — Minimal */
+  .opt-a .post-wrap {
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+  .opt-a .post-date {
+    font-family: futura, helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* Option B — Date badge */
+  .opt-b .post-wrap {
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+  }
+  .opt-b .post-date {
+    display: inline-block;
+    background: black;
+    color: white;
+    font-family: futura, helvetica, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    margin-bottom: 8px;
+  }
+
+  /* Option C — Rule with date inline */
+  .opt-c .post-wrap {
+    padding-bottom: 20px;
+    margin-bottom: 0;
+    padding-top: 16px;
+  }
+  .opt-c .post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .opt-c .post-rule {
+    flex: 1;
+    height: 1px;
+    background: #ccc;
+  }
+  .opt-c .post-date {
+    font-family: futura, helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #666;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+</style>
+
+<h2>Post Styling Options</h2>
+<p class="subtitle">All three fix the shell (A) and make media responsive (B). This is how individual posts look.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div class="preview-post opt-a">
+        <div class="post-wrap">
+          <div class="post-date">March 18, 2014</div>
+          <p style="margin:0 0 4px">Imagine you are being born and society tells you: Welcome, you will be cared for…</p>
+        </div>
+        <div class="post-wrap">
+          <div class="post-date">Jan 20, 2014</div>
+          <p style="margin:0">Here's a funny little op-ed on money addiction as experienced by a former addict…</p>
+        </div>
+        <div class="post-wrap" style="border-bottom:none; margin-bottom:0;">
+          <div class="post-date">Dec 6, 2013</div>
+          <p style="margin:0; color:#aaa; font-style:italic;">↓ video iframe (responsive, 16:9) ↓</p>
+          <div style="background:#ddd; height:50px; display:flex; align-items:center; justify-content:center; color:#888; font-size:11px; margin-top:4px;">▶ YouTube</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Minimal</h3>
+      <p>Thin gray separator, small uppercase date. Clean, stays out of the way of the content. Closest to the current aesthetic.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div class="preview-post opt-b">
+        <div class="post-wrap">
+          <div class="post-date">March 18, 2014</div>
+          <p style="margin:0 0 4px">Imagine you are being born and society tells you: Welcome, you will be cared for…</p>
+        </div>
+        <div class="post-wrap">
+          <div class="post-date">Jan 20, 2014</div>
+          <p style="margin:0">Here's a funny little op-ed on money addiction as experienced by a former addict…</p>
+        </div>
+        <div class="post-wrap" style="border-bottom:none; margin-bottom:0;">
+          <div class="post-date">Dec 6, 2013</div>
+          <p style="margin:0; color:#aaa; font-style:italic;">↓ video iframe (responsive, 16:9) ↓</p>
+          <div style="background:#ddd; height:50px; display:flex; align-items:center; justify-content:center; color:#888; font-size:11px; margin-top:4px;">▶ YouTube</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Date badge (Recommended)</h3>
+      <p>Black pill badge on the date — matches the site's nav/header aesthetic (black bars). Makes each post easy to scan chronologically.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div class="preview-post opt-c">
+        <div class="post-wrap">
+          <div class="post-header">
+            <span class="post-date">March 18, 2014</span>
+            <div class="post-rule"></div>
+          </div>
+          <p style="margin:0 0 4px">Imagine you are being born and society tells you: Welcome, you will be cared for…</p>
+        </div>
+        <div class="post-wrap">
+          <div class="post-header">
+            <span class="post-date">Jan 20, 2014</span>
+            <div class="post-rule"></div>
+          </div>
+          <p style="margin:0">Here's a funny little op-ed on money addiction as experienced by a former addict…</p>
+        </div>
+        <div class="post-wrap">
+          <div class="post-header">
+            <span class="post-date">Dec 6, 2013</span>
+            <div class="post-rule"></div>
+          </div>
+          <p style="margin:0; color:#aaa; font-style:italic;">↓ video iframe (responsive, 16:9) ↓</p>
+          <div style="background:#ddd; height:50px; display:flex; align-items:center; justify-content:center; color:#888; font-size:11px; margin-top:4px;">▶ YouTube</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Date + rule</h3>
+      <p>Date left-aligned, a hairline rule extends across. Gives the blog a newspaper-column feel. Slightly more editorial.</p>
+    </div>
+  </div>
+
+</div>
