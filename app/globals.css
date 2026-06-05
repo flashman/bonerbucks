@@ -100,8 +100,11 @@ table.sortable th { cursor: pointer; }
   padding-bottom: 18px;
   margin-bottom: 2px;
   border-bottom: 1px solid #e8e8e8;
+  overflow-x: hidden;
 }
 .post:last-child { border-bottom: none; }
+
+.post img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 
 .post h5 {
   margin-bottom: 8px;
@@ -121,10 +124,8 @@ table.sortable th { cursor: pointer; }
   background: #333;
   color: white;
 }
-
 .post .media { text-align: center; margin-top: 8px; }
 .post .media a { display: block; }
-.post .media img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 .post .media .source { font-size: 10pt; }
 
 /* Responsive 16:9 iframe container */
