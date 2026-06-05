@@ -33,10 +33,10 @@ export default function BonerRecordRow({ record }: { record: EnrichedRecord }) {
   return (
     <>
       <tr>
-        <td className="w-28">{formatDate(record.created_at)}</td>
-        <td className="w-36">{record.location}</td>
-        <td>{record.note}</td>
-        <td className="w-24">
+        <td data-label="DATE" className="w-28">{formatDate(record.created_at)}</td>
+        <td data-label="CITY" className="w-36">{record.location}</td>
+        <td data-label="NOTES">{record.note}</td>
+        <td data-label="PIC" className="w-24">
           {record.thumb_url && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
