@@ -433,7 +433,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
                       {{ rotateCCW: "↺", rotateCW: "↻", flipH: "↔" }[t]}
                     </button>
                   ))}
-                  <button type="button" aria-label="Crop" disabled={scanning} onClick={() => { setCropping(true); setCropRect(null); }} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: scanning ? "default" : "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✂</button>
+                  <button type="button" aria-label="Crop" disabled={scanning || !imageChangedRef.current} onClick={() => { setCropping(true); setCropRect(null); }} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: (scanning || !imageChangedRef.current) ? "default" : "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", opacity: imageChangedRef.current ? 1 : 0.4 }}>✂</button>
                 </div>
               )}
               {!cropping && (
