@@ -34,7 +34,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [geocoding, setGeocoding] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanNote, setScanNote] = useState<string | null>(null);
-  const abortRef = useRef(false);
+  const scanIdRef = useRef(0);
 
   /** Geocode the typed city using Nominatim (OpenStreetMap) */
   async function geocodeLocation(value: string) {
@@ -62,14 +62,15 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   }
 
   async function scanForSerial(file: File) {
-    abortRef.current = false;
+    if (file.size > MAX_IMAGE_BYTES) return;
+    const myId = ++scanIdRef.current;
     setScanning(true);
     setScanNote(null);
     try {
       const { recognize } = await import("tesseract.js");
       const { data: { text } } = await recognize(file, "eng");
-      if (abortRef.current) return;
-      const matches = text.match(/[A-Z][0-9]{8}[A-Z]/g);
+      if (myId !== scanIdRef.current) return;
+      const matches = text.toUpperCase().match(/[A-Z][0-9]{8}[A-Z]/g);
       if (matches && matches.length > 0) {
         setSerial(matches[0]);
         setScanNote("SERIAL FOUND — PLEASE VERIFY");
@@ -79,7 +80,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     } catch {
       // Tesseract failed to load or crashed — fail silently
     } finally {
-      if (!abortRef.current) setScanning(false);
+      if (myId === scanIdRef.current) setScanning(false);
     }
   }
 
@@ -206,8 +207,6 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
           style={{ fontFamily: "verdana", fontSize: 13 }}
           onChange={(e) => {
             const file = e.target.files?.[0] ?? null;
-            abortRef.current = true;
-            setScanning(false);
             setScanNote(null);
             setImageFile(file);
             if (previewUrl) URL.revokeObjectURL(previewUrl);
