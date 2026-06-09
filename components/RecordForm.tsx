@@ -75,14 +75,17 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const d = imageData.data;
+        // Isolate the green serial ink: pixels where green dominates become black,
+        // everything else (black engraving, paper) becomes white.
+        // GREEN_MARGIN controls how much greener-than-red/blue a pixel must be.
+        const GREEN_MARGIN = 15;
         for (let i = 0; i < d.length; i += 4) {
-          // Convert to grayscale then boost contrast
-          const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-          const c = Math.min(255, Math.max(0, (g - 128) * 1.8 + 128));
-          d[i] = d[i + 1] = d[i + 2] = c;
+          const isGreen = d[i + 1] > d[i] + GREEN_MARGIN && d[i + 1] > d[i + 2] + GREEN_MARGIN;
+          d[i] = d[i + 1] = d[i + 2] = isGreen ? 0 : 255;
         }
         ctx.putImageData(imageData, 0, 0);
         URL.revokeObjectURL(url);
+        console.log("[OCR processed]", canvas.toDataURL("image/png"));
         canvas.toBlob(b => resolve(b!), "image/png");
       };
       img.src = url;
