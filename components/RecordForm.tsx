@@ -352,7 +352,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
               <button
                 type="button"
                 aria-label="Remove image"
-                onClick={() => { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setImageFile(null); setScanNote(null); setLightbox(false); }}
+                onClick={() => { scanIdRef.current++; URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setImageFile(null); setScanNote(null); setScanning(false); setLightbox(false); }}
                 className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150"
                 style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}
               >×</button>
