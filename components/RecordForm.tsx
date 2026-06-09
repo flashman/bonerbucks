@@ -35,7 +35,10 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [scanning, setScanning] = useState(false);
   const [scanNote, setScanNote] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState(false);
+  const [cropping, setCropping] = useState(false);
+  const [cropRect, setCropRect] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const scanIdRef = useRef(0);
+  const cropStartRef = useRef<{ x: number; y: number } | null>(null);
   // Only true if the user explicitly picked/transformed an image this session.
   // The useEffect that loads the existing image for display must NOT set this.
   const imageChangedRef = useRef(false);
@@ -240,6 +243,35 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     if (!isEdit) scanForSerial(newFile);
   }
 
+  async function applyCrop() {
+    if (!imageFile || !previewUrl || !cropRect) return;
+    const newBlob = await new Promise<Blob>((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const sx = Math.round(img.naturalWidth * cropRect.x);
+        const sy = Math.round(img.naturalHeight * cropRect.y);
+        const sw = Math.round(img.naturalWidth * cropRect.w);
+        const sh = Math.round(img.naturalHeight * cropRect.h);
+        const canvas = document.createElement("canvas");
+        canvas.width = sw;
+        canvas.height = sh;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+        canvas.toBlob(b => resolve(b!), "image/jpeg", 0.88);
+      };
+      img.src = previewUrl;
+    });
+    const newFile = new File([newBlob], imageFile.name, { type: "image/jpeg" });
+    URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(URL.createObjectURL(newBlob));
+    setImageFile(newFile);
+    imageChangedRef.current = true;
+    setCropping(false);
+    setCropRect(null);
+    setScanNote(null);
+    if (!isEdit) scanForSerial(newFile);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -359,15 +391,21 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
 
       <div className="field-row">
         <h4>IMAGE (IF YOU WANT):</h4>
-        <label style={{ display: "inline-block", fontFamily: "verdana", fontSize: 12, border: "1px solid #999", padding: "3px 8px", cursor: "pointer", userSelect: "none" }}>
+        <label style={{ display: "inline-block", fontFamily: "verdana", fontSize: 12, border: "1px solid #999", padding: "3px 8px", cursor: cropping ? "default" : "pointer", userSelect: "none", opacity: cropping ? 0.5 : 1 }}>
           {imageFile ? "CHANGE IMAGE" : "CHOOSE FILE"}
           <input
             key={previewUrl ?? "empty"}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            disabled={cropping}
             style={{ display: "none" }}
             onChange={(e) => {
               const file = e.target.files?.[0] ?? null;
+              if (file && !["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
+                setError("UNSUPPORTED FILE TYPE. PLEASE USE JPEG, PNG, WEBP, OR GIF.");
+                e.target.value = "";
+                return;
+              }
               setScanNote(null);
               setLightbox(false);
               setImageFile(file);
@@ -388,26 +426,82 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
             <div className="relative group" style={{ maxWidth: 500 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: "100%", height: "auto", display: "block", cursor: "pointer" }} />
-              <div className="absolute top-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150">
-                {(["rotateCCW", "rotateCW", "flipH"] as const).map((t) => (
-                  <button key={t} type="button" aria-label={{ rotateCCW: "Rotate left", rotateCW: "Rotate right", flipH: "Flip" }[t]} disabled={scanning || !imageChangedRef.current} onClick={() => applyTransform(t)} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: (scanning || !imageChangedRef.current) ? "default" : "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", opacity: imageChangedRef.current ? 1 : 0.4 }}>
-                    {{ rotateCCW: "↺", rotateCW: "↻", flipH: "↔" }[t]}
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                aria-label="Remove image"
-                onClick={() => { scanIdRef.current++; URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setImageFile(null); imageChangedRef.current = false; setScanNote(null); setScanning(false); setLightbox(false); }}
-                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150"
-                style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}
-              >×</button>
+              {!cropping && (
+                <div className="absolute top-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150">
+                  {(["rotateCCW", "rotateCW", "flipH"] as const).map((t) => (
+                    <button key={t} type="button" aria-label={{ rotateCCW: "Rotate left", rotateCW: "Rotate right", flipH: "Flip" }[t]} disabled={scanning || !imageChangedRef.current} onClick={() => applyTransform(t)} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: (scanning || !imageChangedRef.current) ? "default" : "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", opacity: imageChangedRef.current ? 1 : 0.4 }}>
+                      {{ rotateCCW: "↺", rotateCW: "↻", flipH: "↔" }[t]}
+                    </button>
+                  ))}
+                  <button type="button" aria-label="Crop" disabled={scanning} onClick={() => { setCropping(true); setCropRect(null); }} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: scanning ? "default" : "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✂</button>
+                </div>
+              )}
+              {!cropping && (
+                <button
+                  type="button"
+                  aria-label="Remove image"
+                  onClick={() => { scanIdRef.current++; URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setImageFile(null); imageChangedRef.current = false; setScanNote(null); setScanning(false); setLightbox(false); }}
+                  className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150"
+                  style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}
+                >×</button>
+              )}
+              {cropping && (
+                <div
+                  style={{ position: "absolute", inset: 0, cursor: "crosshair", pointerEvents: scanning ? "none" : "auto", touchAction: "none" }}
+                  onPointerDown={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    cropStartRef.current = {
+                      x: (e.clientX - rect.left) / rect.width,
+                      y: (e.clientY - rect.top) / rect.height,
+                    };
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                  }}
+                  onPointerMove={(e) => {
+                    if (!cropStartRef.current) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const cx = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                    const cy = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+                    setCropRect({
+                      x: Math.min(cropStartRef.current.x, cx),
+                      y: Math.min(cropStartRef.current.y, cy),
+                      w: Math.abs(cx - cropStartRef.current.x),
+                      h: Math.abs(cy - cropStartRef.current.y),
+                    });
+                  }}
+                  onPointerUp={(e) => {
+                    if (!cropStartRef.current) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const pw = Math.abs((e.clientX - rect.left) / rect.width - cropStartRef.current.x) * rect.width;
+                    const ph = Math.abs((e.clientY - rect.top) / rect.height - cropStartRef.current.y) * rect.height;
+                    if (pw < 10 || ph < 10) setCropRect(null);
+                    cropStartRef.current = null;
+                  }}
+                >
+                  {cropRect && (
+                    <div style={{
+                      position: "absolute",
+                      left: `${cropRect.x * 100}%`,
+                      top: `${cropRect.y * 100}%`,
+                      width: `${cropRect.w * 100}%`,
+                      height: `${cropRect.h * 100}%`,
+                      border: "2px dashed white",
+                      boxSizing: "border-box",
+                      boxShadow: "0 0 0 9999px rgba(0,0,0,0.5)",
+                    }}>
+                      <div style={{ position: "absolute", top: 2, left: 2, display: "flex", gap: 2 }}>
+                        <button type="button" aria-label="Apply crop" onPointerDown={(e) => e.stopPropagation()} onClick={applyCrop} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</button>
+                        <button type="button" aria-label="Cancel crop" onPointerDown={(e) => e.stopPropagation()} onClick={() => { setCropping(false); setCropRect(null); }} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✗</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 6 }}>
               {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
               {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
             </p>
-            {scanning && <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>}
+{scanning && <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>}
             {!scanning && scanNote && <span style={{ fontSize: 11, color: "green", display: "block", marginTop: 4 }}>✓ {scanNote}</span>}
           </div>
         )}
