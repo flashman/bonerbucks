@@ -336,28 +336,35 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         </label>
         <span style={{ fontSize: 11, color: "#aaa", marginLeft: 8 }}>MAX 5MB</span>
 
-        {previewUrl && (() => {
-          const btnStyle: React.CSSProperties = { fontFamily: "verdana", fontSize: 11, cursor: "pointer", background: "none", border: "1px solid #999", padding: "3px 8px", textAlign: "left", opacity: scanning ? 0.4 : 1 };
-          return (
-            <div style={{ marginTop: 10 }}>
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: 220, maxHeight: 130, display: "block", cursor: "pointer" }} />
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <button type="button" disabled={scanning} onClick={() => applyTransform("rotateCW")} style={btnStyle}>↻ ROTATE CW</button>
-                  <button type="button" disabled={scanning} onClick={() => applyTransform("rotateCCW")} style={btnStyle}>↺ ROTATE CCW</button>
-                  <button type="button" disabled={scanning} onClick={() => applyTransform("flipH")} style={btnStyle}>↔ FLIP</button>
-                </div>
-              </div>
-              <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 6 }}>
-                {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
-                {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
-              </p>
-              {scanning && <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>}
-              {!scanning && scanNote && <span style={{ fontSize: 11, color: "green", display: "block", marginTop: 4 }}>✓ {scanNote}</span>}
+        {previewUrl && (
+          <div style={{ marginTop: 10 }}>
+            <div className="relative inline-block group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: 300, maxHeight: 200, display: "block", cursor: "pointer" }} />
+              <button
+                type="button"
+                aria-label="Remove image"
+                onClick={() => { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setImageFile(null); setScanNote(null); setLightbox(false); }}
+                className="absolute top-1 right-1"
+                style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: "pointer", width: 22, height: 22, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}
+              >×</button>
+              <button
+                type="button"
+                aria-label="Rotate image"
+                disabled={scanning}
+                onClick={() => applyTransform("rotateCW")}
+                className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: scanning ? "default" : "pointer", width: 28, height: 28, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}
+              >↻</button>
             </div>
-          );
-        })()}
+            <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 6 }}>
+              {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
+              {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
+            </p>
+            {scanning && <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>}
+            {!scanning && scanNote && <span style={{ fontSize: 11, color: "green", display: "block", marginTop: 4 }}>✓ {scanNote}</span>}
+          </div>
+        )}
 
         {lightbox && previewUrl && <Lightbox src={previewUrl} onClose={() => setLightbox(false)} />}
 
