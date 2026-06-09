@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normaliseSerial, isValidSerial, MAX_IMAGE_BYTES, imageUrl } from "@/lib/utils";
 import SafeImage from "@/components/SafeImage";
+import Lightbox from "@/components/Lightbox";
 import type { Record as BRecord } from "@/lib/types";
 
 interface Props {
@@ -34,6 +35,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [geocoding, setGeocoding] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanNote, setScanNote] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState(false);
   const scanIdRef = useRef(0);
 
   /** Geocode the typed city using Nominatim (OpenStreetMap) */
@@ -290,6 +292,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
           onChange={(e) => {
             const file = e.target.files?.[0] ?? null;
             setScanNote(null);
+            setLightbox(false);
             setImageFile(file);
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             setPreviewUrl(file ? URL.createObjectURL(file) : null);
@@ -299,13 +302,14 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
 {previewUrl && (
           <div style={{ marginTop: 4 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={previewUrl} alt="Preview" style={{ maxWidth: 105, maxHeight: 45, display: "block" }} />
+            <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: 105, maxHeight: 45, display: "block", cursor: "pointer" }} />
             <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 2 }}>
               {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
               {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
             </p>
           </div>
         )}
+        {lightbox && previewUrl && <Lightbox src={previewUrl} onClose={() => setLightbox(false)} />}
         {scanning && (
           <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>
         )}
