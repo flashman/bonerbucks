@@ -113,14 +113,18 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       // Strict match first
       let match = collapsed.match(/[A-Z][0-9]{8}[A-Z]/g)?.[0] ?? null;
 
-      // Loose match: normalize common OCR letter/digit confusions in digit positions.
-      // R→9 observed empirically on dollar bill serial font; rest are classic Tesseract confusions.
+      // Loose match: normalize common OCR confusions in all positions.
+      // Middle 8 (should be digits): letters → digits
+      // Boundaries (should be letters): digits → letters (e.g. 1→I observed on dollar bill serials)
       if (!match) {
         const DIGIT_SUB: Record<string, string> = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8", R: "9", P: "9", G: "6", T: "7" };
-        for (const candidate of collapsed.match(/[A-Z][A-Z0-9]{8}[A-Z]/g) ?? []) {
+        const LETTER_SUB: Record<string, string> = { "1": "I", "0": "O", "5": "S", "8": "B", "2": "Z" };
+        for (const candidate of collapsed.match(/[A-Z0-9][A-Z0-9]{8}[A-Z0-9]/g) ?? []) {
+          const first = LETTER_SUB[candidate[0]] ?? candidate[0];
+          const last = LETTER_SUB[candidate[9]] ?? candidate[9];
           const middle = candidate.slice(1, 9).replace(/[A-Z]/g, (c: string) => DIGIT_SUB[c] ?? c);
-          if (/^[0-9]{8}$/.test(middle)) {
-            match = candidate[0] + middle + candidate[9];
+          if (/^[A-Z]$/.test(first) && /^[A-Z]$/.test(last) && /^[0-9]{8}$/.test(middle)) {
+            match = first + middle + last;
             break;
           }
         }
