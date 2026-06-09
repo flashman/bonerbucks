@@ -206,9 +206,13 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
           style={{ fontFamily: "verdana", fontSize: 13 }}
           onChange={(e) => {
             const file = e.target.files?.[0] ?? null;
+            abortRef.current = true;
+            setScanning(false);
+            setScanNote(null);
             setImageFile(file);
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             setPreviewUrl(file ? URL.createObjectURL(file) : null);
+            if (file) scanForSerial(file);
           }}
         />
         {previewUrl && (
