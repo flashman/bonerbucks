@@ -369,9 +369,9 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
 
         {previewUrl && (
           <div style={{ marginTop: 10 }}>
-            <div className="relative inline-block group" style={{ maxWidth: "100%" }}>
+            <div className="relative inline-block group" style={{ maxWidth: "min(420px, 100%)" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: "min(420px, 100%)", maxHeight: 300, display: "block", cursor: "pointer" }} />
+              <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ width: "100%", maxHeight: 300, display: "block", cursor: "pointer" }} />
               <div className="absolute top-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150">
                 {(["rotateCCW", "rotateCW", "flipH"] as const).map((t) => (
                   <button key={t} type="button" aria-label={{ rotateCCW: "Rotate left", rotateCW: "Rotate right", flipH: "Flip" }[t]} disabled={scanning} onClick={() => applyTransform(t)} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: scanning ? "default" : "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
