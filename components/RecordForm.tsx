@@ -320,6 +320,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         <label style={{ display: "inline-block", fontFamily: "verdana", fontSize: 12, border: "1px solid #999", padding: "3px 8px", cursor: "pointer", userSelect: "none" }}>
           {imageFile ? "CHANGE IMAGE" : "CHOOSE FILE"}
           <input
+            key={previewUrl ?? "empty"}
             type="file"
             accept="image/*"
             style={{ display: "none" }}
@@ -353,7 +354,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
                 aria-label="Rotate image"
                 disabled={scanning}
                 onClick={() => applyTransform("rotateCW")}
-                className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150"
                 style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: scanning ? "default" : "pointer", width: 28, height: 28, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}
               >↻</button>
             </div>
