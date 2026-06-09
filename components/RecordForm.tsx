@@ -157,8 +157,6 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       if (match) {
         setSerial(match);
         setScanNote("SERIAL FOUND — PLEASE VERIFY");
-      } else {
-        setScanNote("COULDN'T FIND SERIAL IN IMAGE");
       }
     } catch {
       // Tesseract failed to load or crashed — fail silently
