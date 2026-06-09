@@ -78,7 +78,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         // Isolate the green serial ink: pixels where green dominates become black,
         // everything else (black engraving, paper) becomes white.
         // GREEN_MARGIN controls how much greener-than-red/blue a pixel must be.
-        const GREEN_MARGIN = 15;
+        const GREEN_MARGIN = 10;
         for (let i = 0; i < d.length; i += 4) {
           const isGreen = d[i + 1] > d[i] + GREEN_MARGIN && d[i + 1] > d[i + 2] + GREEN_MARGIN;
           d[i] = d[i + 1] = d[i + 2] = isGreen ? 0 : 255;
