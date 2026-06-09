@@ -1,15 +1,29 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from 'next/link'
 import "./globals.css";
 import Nav from "@/components/Nav";
 import NavSearch from "@/components/NavSearch";
 import { createClient } from "@/lib/supabase/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+};
 
 export const metadata: Metadata = {
   title: "Bonerbucks",
   description: "The Boner Tracking Project",
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icon-192.png",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black",
+    title: "Bonerbucks",
+  },
 };
 
 export default async function RootLayout({
@@ -66,6 +80,7 @@ export default async function RootLayout({
           </h5>
         </div>
         <GoogleAnalytics gaId="G-5XW7105XYK" />
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );
