@@ -36,6 +36,9 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [scanNote, setScanNote] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState(false);
   const scanIdRef = useRef(0);
+  // Only true if the user explicitly picked/transformed an image this session.
+  // The useEffect that loads the existing image for display must NOT set this.
+  const imageChangedRef = useRef(false);
 
   useEffect(() => {
     if (!record?.image_path) return;
@@ -124,7 +127,6 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         }
         ctx.putImageData(imageData, 0, 0);
         URL.revokeObjectURL(url);
-        console.log("[OCR processed]", canvas.toDataURL("image/png"));
         canvas.toBlob(b => resolve(b!), "image/png");
       };
       img.src = url;
@@ -147,11 +149,8 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       const preprocessed = await preprocessForOcr(file);
       const { data: { text } } = await worker.recognize(preprocessed);
       if (myId !== scanIdRef.current) return;
-      console.log("[OCR raw]", text);
       const upperText = text.toUpperCase();
-      // Words < 10 chars can't contain a 10-char serial — skip them.
       const searchTargets = upperText.split(/\s+/).filter((w: string) => w.length >= 10);
-      console.log("[OCR words]", searchTargets);
 
       const isPlausibleSerial = (middle: string) => {
         const counts = middle.split("").reduce<Record<string, number>>((a, d) => { a[d] = (a[d] ?? 0) + 1; return a; }, {});
@@ -236,6 +235,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(newBlob));
     setImageFile(newFile);
+    imageChangedRef.current = true;
     setScanNote(null);
     if (!isEdit) scanForSerial(newFile);
   }
@@ -261,8 +261,10 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     try {
       let imagePath: string | undefined;
 
-      // Upload image to Supabase Storage; prefix with user ID so storage RLS delete policy works
-      if (imageFile) {
+      // Upload image to Supabase Storage; prefix with user ID so storage RLS delete policy works.
+      // imageChangedRef guards against re-uploading the existing image when editing without
+      // changing the photo (the useEffect loads it for preview but must not trigger upload).
+      if (imageFile && imageChangedRef.current) {
         const { data: { user } } = await supabase.auth.getUser();
         const uid = user?.id ?? "anon";
         const ext = imageFile.name.split(".").pop();
@@ -369,6 +371,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
               setScanNote(null);
               setLightbox(false);
               setImageFile(file);
+              imageChangedRef.current = !!file;
               if (previewUrl) URL.revokeObjectURL(previewUrl);
               setPreviewUrl(file ? URL.createObjectURL(file) : null);
               if (file) {
@@ -387,7 +390,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
               <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: "100%", height: "auto", display: "block", cursor: "pointer" }} />
               <div className="absolute top-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150">
                 {(["rotateCCW", "rotateCW", "flipH"] as const).map((t) => (
-                  <button key={t} type="button" aria-label={{ rotateCCW: "Rotate left", rotateCW: "Rotate right", flipH: "Flip" }[t]} disabled={scanning} onClick={() => applyTransform(t)} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: scanning ? "default" : "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <button key={t} type="button" aria-label={{ rotateCCW: "Rotate left", rotateCW: "Rotate right", flipH: "Flip" }[t]} disabled={scanning || !imageChangedRef.current} onClick={() => applyTransform(t)} style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: (scanning || !imageChangedRef.current) ? "default" : "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", opacity: imageChangedRef.current ? 1 : 0.4 }}>
                     {{ rotateCCW: "↺", rotateCW: "↻", flipH: "↔" }[t]}
                   </button>
                 ))}
@@ -395,7 +398,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
               <button
                 type="button"
                 aria-label="Remove image"
-                onClick={() => { scanIdRef.current++; URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setImageFile(null); setScanNote(null); setScanning(false); setLightbox(false); }}
+                onClick={() => { scanIdRef.current++; URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setImageFile(null); imageChangedRef.current = false; setScanNote(null); setScanning(false); setLightbox(false); }}
                 className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150"
                 style={{ background: "rgba(0,0,0,0.55)", color: "white", border: "none", cursor: "pointer", width: 26, height: 26, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}
               >×</button>
