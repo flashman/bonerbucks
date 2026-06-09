@@ -61,6 +61,34 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     }
   }
 
+  async function preprocessForOcr(file: File): Promise<Blob> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        // Upscale small images — Tesseract accuracy degrades on small text
+        const scale = Math.max(1, 1500 / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = imageData.data;
+        for (let i = 0; i < d.length; i += 4) {
+          // Convert to grayscale then boost contrast
+          const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+          const c = Math.min(255, Math.max(0, (g - 128) * 1.8 + 128));
+          d[i] = d[i + 1] = d[i + 2] = c;
+        }
+        ctx.putImageData(imageData, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b => resolve(b!), "image/png");
+      };
+      img.src = url;
+    });
+  }
+
   async function scanForSerial(file: File) {
     if (file.size > MAX_IMAGE_BYTES) return;
     const myId = ++scanIdRef.current;
@@ -73,8 +101,10 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       worker = await createWorker("eng");
       await worker.setParameters({
         tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+        tessedit_pageseg_mode: "11", // sparse text — finds text anywhere in a complex image
       });
-      const { data: { text } } = await worker.recognize(file);
+      const preprocessed = await preprocessForOcr(file);
+      const { data: { text } } = await worker.recognize(preprocessed);
       if (myId !== scanIdRef.current) return;
       console.log("[OCR raw]", text);
       const collapsed = text.toUpperCase().replace(/\s+/g, "");
@@ -83,9 +113,10 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       // Strict match first
       let match = collapsed.match(/[A-Z][0-9]{8}[A-Z]/g)?.[0] ?? null;
 
-      // Loose match: normalize common OCR letter/digit confusions in the digit positions
+      // Loose match: normalize common OCR letter/digit confusions in digit positions.
+      // R→9 observed empirically on dollar bill serial font; rest are classic Tesseract confusions.
       if (!match) {
-        const DIGIT_SUB: Record<string, string> = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8" };
+        const DIGIT_SUB: Record<string, string> = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8", R: "9", P: "9", G: "6", T: "7" };
         for (const candidate of collapsed.match(/[A-Z][A-Z0-9]{8}[A-Z]/g) ?? []) {
           const middle = candidate.slice(1, 9).replace(/[A-Z]/g, (c: string) => DIGIT_SUB[c] ?? c);
           if (/^[0-9]{8}$/.test(middle)) {
