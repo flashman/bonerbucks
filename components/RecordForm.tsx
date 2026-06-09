@@ -70,7 +70,10 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       const { recognize } = await import("tesseract.js");
       const { data: { text } } = await recognize(file, "eng");
       if (myId !== scanIdRef.current) return;
-      const matches = text.toUpperCase().match(/[A-Z][0-9]{8}[A-Z]/g);
+      console.log("[OCR raw]", text);
+      const collapsed = text.toUpperCase().replace(/\s+/g, "");
+      console.log("[OCR collapsed]", collapsed);
+      const matches = collapsed.match(/[A-Z][0-9]{8}[A-Z]/g);
       if (matches && matches.length > 0) {
         setSerial(matches[0]);
         setScanNote("SERIAL FOUND — PLEASE VERIFY");
