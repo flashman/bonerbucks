@@ -61,6 +61,28 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     }
   }
 
+  async function scanForSerial(file: File) {
+    abortRef.current = false;
+    setScanning(true);
+    setScanNote(null);
+    try {
+      const { recognize } = await import("tesseract.js");
+      const { data: { text } } = await recognize(file, "eng");
+      if (abortRef.current) return;
+      const matches = text.match(/[A-Z][0-9]{8}[A-Z]/g);
+      if (matches && matches.length > 0) {
+        setSerial(matches[0]);
+        setScanNote("SERIAL FOUND — PLEASE VERIFY");
+      } else {
+        setScanNote("COULDN'T FIND SERIAL IN IMAGE");
+      }
+    } catch {
+      // Tesseract failed to load or crashed — fail silently
+    } finally {
+      if (!abortRef.current) setScanning(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
