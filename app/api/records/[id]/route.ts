@@ -88,13 +88,15 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   }
 
   // Remove boner if it has no more records
+  let bonerDeleted = false;
   if (record?.serial) {
     const { count } = await serviceClient
       .from("records").select("*", { count: "exact", head: true }).eq("serial", record.serial);
     if (count === 0) {
       await serviceClient.from("boners").delete().eq("serial", record.serial);
+      bonerDeleted = true;
     }
   }
 
-  return new NextResponse(null, { status: 204 });
+  return NextResponse.json({ boner_deleted: bonerDeleted });
 }

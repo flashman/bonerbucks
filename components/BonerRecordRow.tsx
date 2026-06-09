@@ -26,8 +26,10 @@ export default function BonerRecordRow({ record }: { record: EnrichedRecord }) {
   async function handleDelete() {
     if (!confirm("Are you sure you want to kill your boner?")) return;
     setDeleting(true);
-    await fetch(`/api/records/${record.id}`, { method: "DELETE" });
-    router.refresh();
+    const res = await fetch(`/api/records/${record.id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
+    if (data.boner_deleted) router.push("/boners");
+    else router.refresh();
   }
 
   return (
