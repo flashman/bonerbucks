@@ -517,6 +517,12 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         disabled={loading || geocoding}
         style={{ opacity: loading || geocoding ? 0.5 : 1 }}
       />
+      <button
+        type="button"
+        onClick={() => redirectTo ? router.push(redirectTo) : router.back()}
+        disabled={loading}
+        style={{ marginLeft: 10, opacity: loading ? 0.5 : 1 }}
+      >CANCEL</button>
     </form>
   );
 }
