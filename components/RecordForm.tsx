@@ -369,7 +369,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
 
         {previewUrl && (
           <div style={{ marginTop: 10 }}>
-            <div className="relative inline-block group" style={{ maxWidth: "min(420px, 100%)" }}>
+            <div className="relative inline-block group" style={{ width: "min(420px, 100%)" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ width: "100%", maxHeight: 300, display: "block", cursor: "pointer" }} />
               <div className="absolute top-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-150">
