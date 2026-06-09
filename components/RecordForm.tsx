@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normaliseSerial, isValidSerial, MAX_IMAGE_BYTES, imageUrl } from "@/lib/utils";
-import SafeImage from "@/components/SafeImage";
 import Lightbox from "@/components/Lightbox";
 import type { Record as BRecord } from "@/lib/types";
 
@@ -37,6 +36,20 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [scanNote, setScanNote] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState(false);
   const scanIdRef = useRef(0);
+
+  useEffect(() => {
+    if (!record?.image_path) return;
+    const url = imageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL!, record.image_path, "large");
+    fetch(url)
+      .then(r => r.blob())
+      .then(blob => {
+        const file = new File([blob], "current-image.jpg", { type: blob.type || "image/jpeg" });
+        setImageFile(file);
+        setPreviewUrl(URL.createObjectURL(blob));
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** Geocode the typed city using Nominatim (OpenStreetMap) */
   async function geocodeLocation(value: string) {
@@ -398,16 +411,6 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
 
         {lightbox && previewUrl && <Lightbox src={previewUrl} onClose={() => setLightbox(false)} />}
 
-        {record?.image_path && !imageFile && (
-          <div style={{ marginTop: 4 }}>
-            <SafeImage
-              src={imageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL!, record.image_path, "large")}
-              alt="Current image"
-              style={{ maxWidth: 300, maxHeight: 200, display: "block", marginBottom: 4 }}
-            />
-            <p style={{ fontSize: 11, color: "#777" }}>Current image on file. Upload a new one to replace it.</p>
-          </div>
-        )}
       </div>
 
       <br />
