@@ -237,7 +237,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     setPreviewUrl(URL.createObjectURL(newBlob));
     setImageFile(newFile);
     setScanNote(null);
-    scanForSerial(newFile);
+    if (!isEdit) scanForSerial(newFile);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -372,9 +372,9 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
               if (previewUrl) URL.revokeObjectURL(previewUrl);
               setPreviewUrl(file ? URL.createObjectURL(file) : null);
               if (file) {
-              scanForSerial(file);
-              if (!location.trim()) extractGpsFromImage(file);
-            }
+                if (!isEdit) scanForSerial(file);
+                if (!location.trim()) extractGpsFromImage(file);
+              }
             }}
           />
         </label>
