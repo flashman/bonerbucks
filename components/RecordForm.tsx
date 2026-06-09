@@ -111,15 +111,9 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       if (myId !== scanIdRef.current) return;
       console.log("[OCR raw]", text);
       const upperText = text.toUpperCase();
-      // Search word-by-word first to avoid false merges: "B\nL299986631" collapsed to
-      // "BL299986631" creates the spurious candidate "BL29998663" before "L299986631".
-      // Words < 10 chars can't contain a 10-char serial so skip them.
-      // Collapsed string is kept as fallback for serials split by internal spaces.
-      const collapsed = upperText.replace(/\s+/g, "");
-      const longWords = upperText.split(/\s+/).filter((w: string) => w.length >= 10);
-      const searchTargets = [...new Set([...longWords, collapsed])];
-      console.log("[OCR words]", longWords);
-      console.log("[OCR collapsed]", collapsed);
+      // Words < 10 chars can't contain a 10-char serial — skip them.
+      const searchTargets = upperText.split(/\s+/).filter((w: string) => w.length >= 10);
+      console.log("[OCR words]", searchTargets);
 
       const isPlausibleSerial = (middle: string) => {
         const counts = middle.split("").reduce<Record<string, number>>((a, d) => { a[d] = (a[d] ?? 0) + 1; return a; }, {});
