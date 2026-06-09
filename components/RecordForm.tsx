@@ -304,8 +304,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
             if (file) scanForSerial(file);
           }}
         />
-        <p style={{ fontSize: 11, color: "#777", marginTop: 2 }}>Tip: crop to just the serial number for best scan results.</p>
-        {previewUrl && (
+{previewUrl && (
           <div style={{ marginTop: 4 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={previewUrl} alt="Preview" style={{ maxWidth: 105, maxHeight: 45, display: "block" }} />
