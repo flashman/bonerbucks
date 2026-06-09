@@ -73,24 +73,26 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   const auth = await authorise(supabase, recordId);
   if (!auth.ok) return NextResponse.json({ error: auth.msg }, { status: auth.status });
 
+  const serviceClient = createServiceClient();
+
   // Grab serial before deletion so we can clean up orphan boners
-  const { data: record } = await supabase
+  const { data: record } = await serviceClient
     .from("records").select("serial, image_path").eq("id", recordId).single();
 
-  const { error } = await supabase.from("records").delete().eq("id", recordId);
+  const { error } = await serviceClient.from("records").delete().eq("id", recordId);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Delete image from Storage if present
   if (record?.image_path) {
-    await supabase.storage.from("record-images").remove([record.image_path]);
+    await serviceClient.storage.from("record-images").remove([record.image_path]);
   }
 
   // Remove boner if it has no more records
   if (record?.serial) {
-    const { count } = await supabase
+    const { count } = await serviceClient
       .from("records").select("*", { count: "exact", head: true }).eq("serial", record.serial);
     if (count === 0) {
-      await supabase.from("boners").delete().eq("serial", record.serial);
+      await serviceClient.from("boners").delete().eq("serial", record.serial);
     }
   }
 
