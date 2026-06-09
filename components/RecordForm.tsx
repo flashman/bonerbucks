@@ -110,7 +110,15 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       const { data: { text } } = await worker.recognize(preprocessed);
       if (myId !== scanIdRef.current) return;
       console.log("[OCR raw]", text);
-      const collapsed = text.toUpperCase().replace(/\s+/g, "");
+      const upperText = text.toUpperCase();
+      // Search word-by-word first to avoid false merges: "B\nL299986631" collapsed to
+      // "BL299986631" creates the spurious candidate "BL29998663" before "L299986631".
+      // Words < 10 chars can't contain a 10-char serial so skip them.
+      // Collapsed string is kept as fallback for serials split by internal spaces.
+      const collapsed = upperText.replace(/\s+/g, "");
+      const longWords = upperText.split(/\s+/).filter((w: string) => w.length >= 10);
+      const searchTargets = [...new Set([...longWords, collapsed])];
+      console.log("[OCR words]", longWords);
       console.log("[OCR collapsed]", collapsed);
 
       const isPlausibleSerial = (middle: string) => {
@@ -118,24 +126,37 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         return Math.max(...(Object.values(counts) as number[])) <= 5;
       };
 
-      // Strict match first — reject candidates where one digit dominates (noise from bill graphics)
-      const strictCandidates = collapsed.match(/[A-Z][0-9]{8}[A-Z]/g) ?? [];
-      let match = strictCandidates.find((c: string) => isPlausibleSerial(c.slice(1, 9))) ?? null;
+      const DIGIT_SUB: Record<string, string> = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8", R: "9", P: "9", G: "6" };
+      const LETTER_SUB: Record<string, string> = { "1": "I", "0": "O", "5": "S", "8": "B", "2": "Z" };
+      const tryLoose = (candidate: string): string | null => {
+        const first = LETTER_SUB[candidate[0]] ?? candidate[0];
+        const last = LETTER_SUB[candidate[9]] ?? candidate[9];
+        const middle = candidate.slice(1, 9).replace(/[A-Z]/g, (c: string) => DIGIT_SUB[c] ?? c);
+        if (!/^[A-Z]$/.test(first) || !/^[A-Z]$/.test(last) || !/^[0-9]{8}$/.test(middle)) return null;
+        if (!isPlausibleSerial(middle)) return null;
+        return first + middle + last;
+      };
 
-      // Loose match: normalize common OCR confusions in all positions.
-      // Middle 8 (should be digits): letters → digits
-      // Boundaries (should be letters): digits → letters (e.g. 1→I observed on dollar bill serials)
+      let match: string | null = null;
+      // Pass 1 (strict) across all targets, then Pass 2 (loose, letter-first),
+      // then Pass 3 (loose, digit-first) — ordered from fewest to most substitutions.
+      outer: for (const str of searchTargets) {
+        for (const c of str.match(/[A-Z][0-9]{8}[A-Z]/g) ?? []) {
+          if (isPlausibleSerial(c.slice(1, 9))) { match = c; break outer; }
+        }
+      }
       if (!match) {
-        const DIGIT_SUB: Record<string, string> = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8", R: "9", P: "9", G: "6" };
-        const LETTER_SUB: Record<string, string> = { "1": "I", "0": "O", "5": "S", "8": "B", "2": "Z" };
-        for (const candidate of collapsed.match(/[A-Z0-9][A-Z0-9]{8}[A-Z0-9]/g) ?? []) {
-          const first = LETTER_SUB[candidate[0]] ?? candidate[0];
-          const last = LETTER_SUB[candidate[9]] ?? candidate[9];
-          const middle = candidate.slice(1, 9).replace(/[A-Z]/g, (c: string) => DIGIT_SUB[c] ?? c);
-          if (!/^[A-Z]$/.test(first) || !/^[A-Z]$/.test(last) || !/^[0-9]{8}$/.test(middle)) continue;
-          if (!isPlausibleSerial(middle)) continue;
-          match = first + middle + last;
-          break;
+        outer: for (const str of searchTargets) {
+          for (const c of str.match(/[A-Z][A-Z0-9]{8}[A-Z0-9]/g) ?? []) {
+            const r = tryLoose(c); if (r) { match = r; break outer; }
+          }
+        }
+      }
+      if (!match) {
+        outer: for (const str of searchTargets) {
+          for (const c of str.match(/[0-9][A-Z0-9]{8}[A-Z]/g) ?? []) {
+            const r = tryLoose(c); if (r) { match = r; break outer; }
+          }
         }
       }
 
