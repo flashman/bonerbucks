@@ -110,23 +110,29 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       const collapsed = text.toUpperCase().replace(/\s+/g, "");
       console.log("[OCR collapsed]", collapsed);
 
-      // Strict match first
-      let match = collapsed.match(/[A-Z][0-9]{8}[A-Z]/g)?.[0] ?? null;
+      const isPlausibleSerial = (middle: string) => {
+        const counts = middle.split("").reduce<Record<string, number>>((a, d) => { a[d] = (a[d] ?? 0) + 1; return a; }, {});
+        return Math.max(...(Object.values(counts) as number[])) <= 5;
+      };
+
+      // Strict match first — reject candidates where one digit dominates (noise from bill graphics)
+      const strictCandidates = collapsed.match(/[A-Z][0-9]{8}[A-Z]/g) ?? [];
+      let match = strictCandidates.find((c: string) => isPlausibleSerial(c.slice(1, 9))) ?? null;
 
       // Loose match: normalize common OCR confusions in all positions.
       // Middle 8 (should be digits): letters → digits
       // Boundaries (should be letters): digits → letters (e.g. 1→I observed on dollar bill serials)
       if (!match) {
-        const DIGIT_SUB: Record<string, string> = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8", R: "9", P: "9", G: "6", T: "7" };
+        const DIGIT_SUB: Record<string, string> = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8", R: "9", P: "9", G: "6" };
         const LETTER_SUB: Record<string, string> = { "1": "I", "0": "O", "5": "S", "8": "B", "2": "Z" };
         for (const candidate of collapsed.match(/[A-Z0-9][A-Z0-9]{8}[A-Z0-9]/g) ?? []) {
           const first = LETTER_SUB[candidate[0]] ?? candidate[0];
           const last = LETTER_SUB[candidate[9]] ?? candidate[9];
           const middle = candidate.slice(1, 9).replace(/[A-Z]/g, (c: string) => DIGIT_SUB[c] ?? c);
-          if (/^[A-Z]$/.test(first) && /^[A-Z]$/.test(last) && /^[0-9]{8}$/.test(middle)) {
-            match = first + middle + last;
-            break;
-          }
+          if (!/^[A-Z]$/.test(first) || !/^[A-Z]$/.test(last) || !/^[0-9]{8}$/.test(middle)) continue;
+          if (!isPlausibleSerial(middle)) continue;
+          match = first + middle + last;
+          break;
         }
       }
 
