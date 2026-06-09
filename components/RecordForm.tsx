@@ -63,6 +63,30 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     }
   }
 
+  async function extractGpsFromImage(file: File) {
+    // Only attempt on files that could have EXIF (JPEG/HEIF)
+    if (!file.type.includes("jpeg") && !file.type.includes("jpg") && !file.type.includes("heic") && !file.type.includes("heif")) return;
+    try {
+      const exifr = await import("exifr");
+      const gps = await exifr.gps(file);
+      if (!gps?.latitude || !gps?.longitude) return;
+      setLat(parseFloat(gps.latitude.toFixed(6)));
+      setLng(parseFloat(gps.longitude.toFixed(6)));
+      // Reverse geocode to get a human-readable city name
+      setGeocoding(true);
+      setGeocodeError("");
+      const res = await fetch(`/api/geocode?lat=${gps.latitude}&lng=${gps.longitude}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.display_name) setLocation(data.display_name);
+      }
+    } catch {
+      // EXIF read failed or no GPS — silently ignore
+    } finally {
+      setGeocoding(false);
+    }
+  }
+
   async function preprocessForOcr(file: File): Promise<Blob> {
     return new Promise((resolve) => {
       const img = new Image();
@@ -334,7 +358,10 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
               setImageFile(file);
               if (previewUrl) URL.revokeObjectURL(previewUrl);
               setPreviewUrl(file ? URL.createObjectURL(file) : null);
-              if (file) scanForSerial(file);
+              if (file) {
+              scanForSerial(file);
+              if (!location.trim()) extractGpsFromImage(file);
+            }
             }}
           />
         </label>
