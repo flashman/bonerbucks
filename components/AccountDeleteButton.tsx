@@ -10,9 +10,10 @@ export default function AccountDeleteButton({ id, serial }: { id: number; serial
   async function handleDelete() {
     if (!confirm("Are you sure you want to kill your boner?")) return;
     setLoading(true);
-    await fetch(`/api/records/${id}`, { method: "DELETE" });
-    router.refresh();
-    setLoading(false);
+    const res = await fetch(`/api/records/${id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
+    if (data.boner_deleted) router.push("/boners");
+    else { router.refresh(); setLoading(false); }
   }
 
   return (
