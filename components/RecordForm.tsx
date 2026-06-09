@@ -225,6 +225,14 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
             </p>
           </div>
         )}
+        {scanning && (
+          <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>
+        )}
+        {!scanning && scanNote && (
+          <span style={{ fontSize: 11, color: scanNote.startsWith("SERIAL") ? "green" : "#aaa", display: "block", marginTop: 4 }}>
+            {scanNote}
+          </span>
+        )}
         {record?.image_path && !imageFile && (
           <div style={{ marginTop: 4 }}>
             <SafeImage
