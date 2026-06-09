@@ -161,7 +161,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         <input
           type="text"
           value={serial}
-          onChange={(e) => setSerial(e.target.value)}
+          onChange={(e) => { setSerial(e.target.value); setScanNote(null); }}
           placeholder="A12345678B"
           maxLength={10}
           disabled={isEdit}
