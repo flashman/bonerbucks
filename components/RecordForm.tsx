@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normaliseSerial, isValidSerial, MAX_IMAGE_BYTES, imageUrl } from "@/lib/utils";
@@ -32,6 +32,9 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [geocodeError, setGeocodeError] = useState("");
   const [loading, setLoading] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanNote, setScanNote] = useState<string | null>(null);
+  const abortRef = useRef(false);
 
   /** Geocode the typed city using Nominatim (OpenStreetMap) */
   async function geocodeLocation(value: string) {
