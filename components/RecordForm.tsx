@@ -316,49 +316,51 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       </div>
 
       <div className="field-row">
-        <h4>IMAGE (IF YOU WANT... MAX SIZE IS 5MB):</h4>
-        <input
-          type="file"
-          accept="image/*"
-          style={{ fontFamily: "verdana", fontSize: 13 }}
-          onChange={(e) => {
-            const file = e.target.files?.[0] ?? null;
-            setScanNote(null);
-            setLightbox(false);
-            setImageFile(file);
-            if (previewUrl) URL.revokeObjectURL(previewUrl);
-            setPreviewUrl(file ? URL.createObjectURL(file) : null);
-            if (file) scanForSerial(file);
-          }}
-        />
-        {previewUrl && (
-          <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 8 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: 220, maxHeight: 160, display: "block", cursor: "pointer" }} />
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {(["rotateCW", "rotateCCW", "flipH", "flipV"] as const).map((t) => (
-                <button key={t} type="button" title={{ rotateCW: "Rotate clockwise", rotateCCW: "Rotate counter-clockwise", flipH: "Flip horizontal", flipV: "Flip vertical" }[t]} disabled={scanning} onClick={() => applyTransform(t)} style={{ fontFamily: "verdana", fontSize: 13, cursor: "pointer", background: "none", border: "1px solid #999", padding: "3px 7px", opacity: scanning ? 0.4 : 1 }}>
-                  {{ rotateCW: "↻", rotateCCW: "↺", flipH: "↔", flipV: "↕" }[t]}
-                </button>
-              ))}
+        <h4>IMAGE (IF YOU WANT):</h4>
+        <label style={{ display: "inline-block", fontFamily: "verdana", fontSize: 12, border: "1px solid #999", padding: "3px 8px", cursor: "pointer", userSelect: "none" }}>
+          {imageFile ? "CHANGE IMAGE" : "CHOOSE FILE"}
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files?.[0] ?? null;
+              setScanNote(null);
+              setLightbox(false);
+              setImageFile(file);
+              if (previewUrl) URL.revokeObjectURL(previewUrl);
+              setPreviewUrl(file ? URL.createObjectURL(file) : null);
+              if (file) scanForSerial(file);
+            }}
+          />
+        </label>
+        <span style={{ fontSize: 11, color: "#aaa", marginLeft: 8 }}>MAX 5MB</span>
+
+        {previewUrl && (() => {
+          const btnStyle: React.CSSProperties = { fontFamily: "verdana", fontSize: 11, cursor: "pointer", background: "none", border: "1px solid #999", padding: "3px 8px", textAlign: "left", opacity: scanning ? 0.4 : 1 };
+          return (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: 220, maxHeight: 130, display: "block", cursor: "pointer" }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <button type="button" disabled={scanning} onClick={() => applyTransform("rotateCW")} style={btnStyle}>↻ ROTATE CW</button>
+                  <button type="button" disabled={scanning} onClick={() => applyTransform("rotateCCW")} style={btnStyle}>↺ ROTATE CCW</button>
+                  <button type="button" disabled={scanning} onClick={() => applyTransform("flipH")} style={btnStyle}>↔ FLIP</button>
+                </div>
+              </div>
+              <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 6 }}>
+                {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
+                {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
+              </p>
+              {scanning && <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>}
+              {!scanning && scanNote && <span style={{ fontSize: 11, color: "green", display: "block", marginTop: 4 }}>✓ {scanNote}</span>}
             </div>
-          </div>
-        )}
+          );
+        })()}
+
         {lightbox && previewUrl && <Lightbox src={previewUrl} onClose={() => setLightbox(false)} />}
-        {previewUrl && (
-          <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 6 }}>
-            {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
-            {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
-          </p>
-        )}
-        {scanning && (
-          <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>
-        )}
-        {!scanning && scanNote && (
-          <span style={{ fontSize: 11, color: scanNote.startsWith("SERIAL") ? "green" : "#aaa", display: "block", marginTop: 4 }}>
-            {scanNote}
-          </span>
-        )}
+
         {record?.image_path && !imageFile && (
           <div style={{ marginTop: 4 }}>
             <SafeImage
