@@ -95,7 +95,6 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   }
 
   async function scanForSerial(file: File) {
-    if (file.size > MAX_IMAGE_BYTES) return;
     const myId = ++scanIdRef.current;
     setScanning(true);
     setScanNote(null);
@@ -173,26 +172,30 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     const newBlob = await new Promise<Blob>((resolve) => {
       const img = new Image();
       img.onload = () => {
+        // Cap long edge at 2400px so re-encoded file stays well under 5MB
+        const scale = Math.min(1, 2400 / Math.max(img.width, img.height));
+        const sw = Math.round(img.width * scale);
+        const sh = Math.round(img.height * scale);
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d")!;
         if (type === "rotateCW" || type === "rotateCCW") {
-          canvas.width = img.height;
-          canvas.height = img.width;
+          canvas.width = sh;
+          canvas.height = sw;
           ctx.translate(canvas.width / 2, canvas.height / 2);
           ctx.rotate(type === "rotateCW" ? Math.PI / 2 : -Math.PI / 2);
-          ctx.drawImage(img, -img.width / 2, -img.height / 2);
+          ctx.drawImage(img, -sw / 2, -sh / 2, sw, sh);
         } else {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.translate(type === "flipH" ? img.width : 0, type === "flipV" ? img.height : 0);
-          ctx.scale(type === "flipH" ? -1 : 1, type === "flipV" ? -1 : 1);
-          ctx.drawImage(img, 0, 0);
+          canvas.width = sw;
+          canvas.height = sh;
+          ctx.translate(sw, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, 0, 0, sw, sh);
         }
-        canvas.toBlob(b => resolve(b!), imageFile.type || "image/jpeg", 0.95);
+        canvas.toBlob(b => resolve(b!), "image/jpeg", 0.88);
       };
       img.src = previewUrl;
     });
-    const newFile = new File([newBlob], imageFile.name, { type: imageFile.type || "image/jpeg" });
+    const newFile = new File([newBlob], imageFile.name, { type: "image/jpeg" });
     URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(newBlob));
     setImageFile(newFile);
