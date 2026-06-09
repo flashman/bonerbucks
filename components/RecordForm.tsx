@@ -36,7 +36,6 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
   const [scanning, setScanning] = useState(false);
   const [scanNote, setScanNote] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState(false);
-  const [rotation, setRotation] = useState(0);
   const scanIdRef = useRef(0);
 
   /** Geocode the typed city using Nominatim (OpenStreetMap) */
@@ -64,24 +63,18 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     }
   }
 
-  async function preprocessForOcr(file: File, rotationDeg = 0): Promise<Blob> {
+  async function preprocessForOcr(file: File): Promise<Blob> {
     return new Promise((resolve) => {
       const img = new Image();
       const url = URL.createObjectURL(file);
       img.onload = () => {
         // Upscale small images — Tesseract accuracy degrades on small text
         const scale = Math.max(1, 1500 / Math.max(img.width, img.height));
-        const scaledW = Math.round(img.width * scale);
-        const scaledH = Math.round(img.height * scale);
-        const rotated = rotationDeg === 90 || rotationDeg === 270;
         const canvas = document.createElement("canvas");
-        canvas.width = rotated ? scaledH : scaledW;
-        canvas.height = rotated ? scaledW : scaledH;
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
         const ctx = canvas.getContext("2d")!;
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate((rotationDeg * Math.PI) / 180);
-        ctx.drawImage(img, -scaledW / 2, -scaledH / 2, scaledW, scaledH);
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const d = imageData.data;
         // Isolate the green serial ink: pixels where green dominates become black,
@@ -101,7 +94,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     });
   }
 
-  async function scanForSerial(file: File, rotationDeg = 0) {
+  async function scanForSerial(file: File) {
     if (file.size > MAX_IMAGE_BYTES) return;
     const myId = ++scanIdRef.current;
     setScanning(true);
@@ -115,7 +108,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
         tessedit_pageseg_mode: "6", // uniform text block — better for clean binary images
       });
-      const preprocessed = await preprocessForOcr(file, rotationDeg);
+      const preprocessed = await preprocessForOcr(file);
       const { data: { text } } = await worker.recognize(preprocessed);
       if (myId !== scanIdRef.current) return;
       console.log("[OCR raw]", text);
@@ -173,6 +166,38 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       worker?.terminate();
       if (myId === scanIdRef.current) setScanning(false);
     }
+  }
+
+  async function applyTransform(type: "rotateCW" | "rotateCCW" | "flipH" | "flipV") {
+    if (!imageFile || !previewUrl) return;
+    const newBlob = await new Promise<Blob>((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d")!;
+        if (type === "rotateCW" || type === "rotateCCW") {
+          canvas.width = img.height;
+          canvas.height = img.width;
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.rotate(type === "rotateCW" ? Math.PI / 2 : -Math.PI / 2);
+          ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        } else {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.translate(type === "flipH" ? img.width : 0, type === "flipV" ? img.height : 0);
+          ctx.scale(type === "flipH" ? -1 : 1, type === "flipV" ? -1 : 1);
+          ctx.drawImage(img, 0, 0);
+        }
+        canvas.toBlob(b => resolve(b!), imageFile.type || "image/jpeg", 0.95);
+      };
+      img.src = previewUrl;
+    });
+    const newFile = new File([newBlob], imageFile.name, { type: imageFile.type || "image/jpeg" });
+    URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(URL.createObjectURL(newBlob));
+    setImageFile(newFile);
+    setScanNote(null);
+    scanForSerial(newFile);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -300,27 +325,32 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
             const file = e.target.files?.[0] ?? null;
             setScanNote(null);
             setLightbox(false);
-            setRotation(0);
             setImageFile(file);
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             setPreviewUrl(file ? URL.createObjectURL(file) : null);
-            if (file) scanForSerial(file, 0);
+            if (file) scanForSerial(file);
           }}
         />
-{previewUrl && (
-          <div style={{ marginTop: 4 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: 105, maxHeight: 45, display: "block", cursor: "pointer", transform: `rotate(${rotation}deg)`, transition: "transform 0.2s" }} />
-              <button type="button" onClick={() => { const r = (rotation + 90) % 360; setRotation(r); if (imageFile) scanForSerial(imageFile, r); }} style={{ fontFamily: "verdana", fontSize: 11, cursor: "pointer", background: "none", border: "1px solid #999", padding: "2px 6px" }}>↻</button>
+        {previewUrl && (
+          <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 8 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={previewUrl} alt="Preview" onClick={() => setLightbox(true)} style={{ maxWidth: 220, maxHeight: 160, display: "block", cursor: "pointer" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {(["rotateCW", "rotateCCW", "flipH", "flipV"] as const).map((t) => (
+                <button key={t} type="button" title={{ rotateCW: "Rotate clockwise", rotateCCW: "Rotate counter-clockwise", flipH: "Flip horizontal", flipV: "Flip vertical" }[t]} disabled={scanning} onClick={() => applyTransform(t)} style={{ fontFamily: "verdana", fontSize: 13, cursor: "pointer", background: "none", border: "1px solid #999", padding: "3px 7px", opacity: scanning ? 0.4 : 1 }}>
+                  {{ rotateCW: "↻", rotateCCW: "↺", flipH: "↔", flipV: "↕" }[t]}
+                </button>
+              ))}
             </div>
-            <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 2 }}>
-              {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
-              {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
-            </p>
           </div>
         )}
         {lightbox && previewUrl && <Lightbox src={previewUrl} onClose={() => setLightbox(false)} />}
+        {previewUrl && (
+          <p style={{ fontSize: 11, color: imageFile && imageFile.size > MAX_IMAGE_BYTES ? "red" : "#777", marginTop: 6 }}>
+            {imageFile?.name} ({(imageFile!.size / (1024 * 1024)).toFixed(2)} MB)
+            {imageFile && imageFile.size > MAX_IMAGE_BYTES ? " — TOO LARGE" : ""}
+          </p>
+        )}
         {scanning && (
           <span style={{ fontSize: 11, color: "#777", display: "block", marginTop: 4 }}>SCANNING FOR SERIAL...</span>
         )}
