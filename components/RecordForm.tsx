@@ -104,7 +104,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       worker = await createWorker("eng");
       await worker.setParameters({
         tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        tessedit_pageseg_mode: "11", // sparse text — finds text anywhere in a complex image
+        tessedit_pageseg_mode: "6", // uniform text block — better for clean binary images
       });
       const preprocessed = await preprocessForOcr(file);
       const { data: { text } } = await worker.recognize(preprocessed);
