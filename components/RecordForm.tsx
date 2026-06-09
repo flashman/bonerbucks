@@ -66,16 +66,37 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     const myId = ++scanIdRef.current;
     setScanning(true);
     setScanNote(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let worker: any = null;
     try {
-      const { recognize } = await import("tesseract.js");
-      const { data: { text } } = await recognize(file, "eng");
+      const { createWorker } = await import("tesseract.js");
+      worker = await createWorker("eng");
+      await worker.setParameters({
+        tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      });
+      const { data: { text } } = await worker.recognize(file);
       if (myId !== scanIdRef.current) return;
       console.log("[OCR raw]", text);
       const collapsed = text.toUpperCase().replace(/\s+/g, "");
       console.log("[OCR collapsed]", collapsed);
-      const matches = collapsed.match(/[A-Z][0-9]{8}[A-Z]/g);
-      if (matches && matches.length > 0) {
-        setSerial(matches[0]);
+
+      // Strict match first
+      let match = collapsed.match(/[A-Z][0-9]{8}[A-Z]/g)?.[0] ?? null;
+
+      // Loose match: normalize common OCR letter/digit confusions in the digit positions
+      if (!match) {
+        const DIGIT_SUB: Record<string, string> = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8" };
+        for (const candidate of collapsed.match(/[A-Z][A-Z0-9]{8}[A-Z]/g) ?? []) {
+          const middle = candidate.slice(1, 9).replace(/[A-Z]/g, (c: string) => DIGIT_SUB[c] ?? c);
+          if (/^[0-9]{8}$/.test(middle)) {
+            match = candidate[0] + middle + candidate[9];
+            break;
+          }
+        }
+      }
+
+      if (match) {
+        setSerial(match);
         setScanNote("SERIAL FOUND — PLEASE VERIFY");
       } else {
         setScanNote("COULDN'T FIND SERIAL IN IMAGE");
@@ -83,6 +104,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
     } catch {
       // Tesseract failed to load or crashed — fail silently
     } finally {
+      worker?.terminate();
       if (myId === scanIdRef.current) setScanning(false);
     }
   }
@@ -217,6 +239,7 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
             if (file) scanForSerial(file);
           }}
         />
+        <p style={{ fontSize: 11, color: "#777", marginTop: 2 }}>Tip: crop to just the serial number for best scan results.</p>
         {previewUrl && (
           <div style={{ marginTop: 4 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
