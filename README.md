@@ -2,7 +2,7 @@
 
 A Next.js 15 migration of the original Ruby on Rails 2/3 app.
 
-**Stack:** Next.js 15 (App Router) · Supabase (Auth + Postgres + Storage) · Vercel · Terraform · TypeScript · Tailwind CSS
+**Stack:** Next.js 15 (App Router) · Supabase (Auth + Postgres + Storage) · Vercel · TypeScript · Tailwind CSS
 
 ---
 
@@ -26,6 +26,7 @@ bonerbucks/
 │       ├── boners/           # GET /api/boners, GET /api/boners/[serial]
 │       ├── records/          # POST /api/records, PATCH/DELETE /api/records/[id]
 │       ├── map/              # GET /api/map  — GeoJSON for the homepage map
+│       ├── geocode/          # GET /api/geocode — Nominatim proxy (forward + reverse)
 │       └── auth/logout/      # POST /api/auth/logout
 ├── components/               # Shared React components
 ├── lib/
@@ -35,14 +36,9 @@ bonerbucks/
 │   ├── types.ts              # Shared TypeScript types
 │   └── utils.ts              # Serial validation, image URL helpers, date formatting
 ├── middleware.ts             # Session refresh + route protection
-├── supabase/
-│   └── migrations/
-│       └── 001_init.sql      # Full schema: tables, RLS, storage, view, triggers
-└── terraform/                # Infrastructure as code
-    ├── main.tf               # Vercel project + Supabase project + env vars
-    ├── variables.tf
-    ├── outputs.tf
-    └── terraform.tfvars.example
+└── supabase/
+    └── migrations/
+        └── 001_init.sql      # Full schema: tables, RLS, storage, view, triggers
 ```
 
 ---
@@ -61,7 +57,7 @@ bonerbucks/
 
 **Image storage:** Supabase Storage bucket `record-images`. URLs are generated via the Supabase Image Transformation API (auto-resizes to `thumb` 105×45 or `large` 700×300).
 
-**Anonymous sightings:** Anyone can report a boner without logging in. The created record IDs are stored in an `anon_records` httpOnly cookie so the creator can edit/delete them later (mirroring the original `session[:records]` Rails behaviour).
+**Anonymous sightings:** Anyone can report a boner without logging in. The created record IDs are stored in an `anon_records` httpOnly cookie so the creator can edit/delete them later.
 
 **Roles:** `profiles.role = 0` is a regular user; `role = 1` is admin.
 
@@ -73,7 +69,6 @@ bonerbucks/
 
 - Node.js 20+
 - [Supabase CLI](https://supabase.com/docs/guides/cli) (`brew install supabase/tap/supabase`)
-- A Google Maps API key with **Maps JavaScript API**, **Geocoding API**, and **Places API** enabled
 
 ### 1 — Clone & install
 
@@ -102,7 +97,6 @@ Fill in `.env.local` with the values from `supabase status` (for local dev) or y
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<from supabase status>
 SUPABASE_SERVICE_ROLE_KEY=<from supabase status>
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<your key>
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
@@ -117,21 +111,6 @@ Open [http://localhost:3000](http://localhost:3000).
 ---
 
 ## Deployment
-
-### Option A — Automated with Terraform (recommended)
-
-```bash
-cd terraform
-cp terraform.tfvars.example terraform.tfvars
-# Fill in terraform.tfvars
-terraform init
-terraform plan
-terraform apply
-```
-
-After `apply`, follow the **POST-APPLY CHECKLIST** printed in the outputs.
-
-### Option B — Manual
 
 1. **Supabase:** Create a project at [app.supabase.com](https://app.supabase.com), copy your project URL and anon key, then run:
    ```bash
@@ -159,22 +138,14 @@ Admins can edit/delete all records and see `/admin/records`.
 ## DevOps Notes
 
 ### Secrets Management
-- **Never commit** `.env.local` or `terraform.tfvars`
-- `SUPABASE_SERVICE_ROLE_KEY` is server-only — Terraform only exposes it to Vercel's `production` environment
+- **Never commit** `.env.local`
+- `SUPABASE_SERVICE_ROLE_KEY` is server-only — never expose to the browser or set as a `NEXT_PUBLIC_` variable
 - In CI/CD, inject secrets via your CI provider's secret store (GitHub Actions → Settings → Secrets)
-
-### Remote Terraform State
-For teams, store state remotely. Uncomment the `backend "s3"` block in `main.tf` and configure an S3 bucket (or use Terraform Cloud).
 
 ### ISR & Caching
 - `/boners` page revalidates every 30 seconds
 - `/api/map` revalidates every 60 seconds with `Cache-Control: s-maxage=60`
 - Individual boner pages are server-rendered on demand
-
-### Google Maps API Key
-- Create separate keys for dev and prod
-- In production, restrict the key to your domain (`bonerbucks.org/*`) in the Google Cloud Console
-- Enable billing on the project (Maps has a free tier of $200/month)
 
 ### Image Uploads
 - Max file size: 5 MB (enforced client-side and by Supabase Storage policy)
@@ -190,8 +161,8 @@ For teams, store state remotely. Uncomment the `backend "s3"` block in `main.tf`
 | Auth | Authlogic (session, username login) | Supabase Auth (email + username display name) |
 | Sessions | Cookie-based Rails sessions | Supabase `@supabase/ssr` cookie sessions |
 | Image storage | S3 via Paperclip (2 sizes hardcoded) | Supabase Storage + Image Transformation API |
-| Geocoding | Client-side via Google Maps Places | Client-side Google Maps Geocoder |
-| Map | jQuery + Google Maps v3 + MarkerClusterer | React + Google Maps (Advanced Markers) |
+| Geocoding | Client-side Google Maps Places | Server-side Nominatim via `/api/geocode` |
+| Map | jQuery + Google Maps v3 + MarkerClusterer | Leaflet + OpenStreetMap |
 | Blog | Hardcoded ERB HTML | Static JSX (historical) + `posts` table (new) |
 | Deployment | Heroku (inferred from Procfile) | Vercel |
 | DB | PostgreSQL via ActiveRecord | PostgreSQL via Supabase client (with RLS) |
