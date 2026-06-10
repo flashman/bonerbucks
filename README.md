@@ -2,7 +2,19 @@
 
 Track boner-bucks in the wild. Report sightings, see where they've been, claim your finds.
 
+**Production:** [bonerbucks.org](https://bonerbucks.org)
+
 **Stack:** Next.js 15 (App Router) · Supabase (Auth + Postgres + Storage) · Vercel · TypeScript · Tailwind CSS
+
+**Architecture:** SSR via Next.js App Router. Three distinct Supabase clients — browser, cookie-aware server, and service-role (never mix them). Anonymous sightings are tracked via an `anon_records` httpOnly cookie so unauthenticated users can edit their own records. Geocoding proxied through `/api/geocode` (Nominatim, no API key needed).
+
+---
+
+## Deploying changes
+
+Push to `main` → Vercel deploys automatically.
+
+**Before merging any HTML/CSS/JS change:** bump the service worker cache version in `public/sw.js` (`CACHE_NAME = 'bonerbucks-vN'`). Skipping this causes users to get stale assets until they hard-refresh.
 
 ---
 
@@ -38,7 +50,7 @@ npm run dev             # http://localhost:3000
 
 ---
 
-## Deployment
+## First-time Deployment
 
 1. **Supabase:** Create a project at [app.supabase.com](https://app.supabase.com), then run:
    ```bash
