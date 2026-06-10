@@ -16,7 +16,7 @@ Track boner-bucks in the wild. Report sightings, see where they've been, claim y
 ### Setup
 
 ```bash
-git clone https://github.com/yourorg/bonerbucks
+git clone https://github.com/flashman/bonerbucks
 cd bonerbucks
 npm install
 ```
@@ -28,7 +28,8 @@ supabase db push        # applies migrations
 
 ```bash
 cp .env.example .env.local
-# Fill in values from `supabase status`
+# Fill in Supabase values from `supabase status`
+# Set NEXT_PUBLIC_SITE_URL to your production domain before deploying
 ```
 
 ```bash
