@@ -519,10 +519,9 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
       />
       <button
         type="button"
-        className="submit-btn"
         onClick={() => redirectTo ? router.push(redirectTo) : router.back()}
         disabled={loading}
-        style={{ marginLeft: 10, background: "#ccc", opacity: loading ? 0.5 : 1 }}
+        style={{ marginLeft: 10, background: "none", border: "none", fontFamily: "verdana, sans-serif", fontSize: 14, cursor: "pointer", textDecoration: "underline", opacity: loading ? 0.5 : 1 }}
       >CANCEL</button>
     </form>
   );
