@@ -521,8 +521,8 @@ export default function RecordForm({ initialSerial = "", record, redirectTo }: P
         type="button"
         onClick={() => redirectTo ? router.push(redirectTo) : router.back()}
         disabled={loading}
-        className="hover:bg-gray-100 rounded px-2"
-        style={{ marginLeft: 10, border: "none", fontFamily: "verdana, sans-serif", fontSize: 14, cursor: "pointer", textDecoration: "underline", opacity: loading ? 0.5 : 1 }}
+        className="hover:bg-gray-100 px-2"
+        style={{ marginLeft: 10, border: "none", fontFamily: "verdana, sans-serif", fontSize: 14, cursor: "pointer", opacity: loading ? 0.5 : 1 }}
       >CANCEL</button>
     </form>
   );
