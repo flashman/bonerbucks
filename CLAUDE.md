@@ -50,6 +50,10 @@ NEXT_PUBLIC_SITE_URL           # used by Supabase Auth redirects
 
 Copy `.env.example` to `.env.local`. `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in the example file is a leftover from before the Leaflet migration — it is no longer needed.
 
+## Before Merging to Main
+
+Bump the service worker cache version in `public/sw.js` (`CACHE_NAME = 'bonerbucks-vN'`) whenever any HTML, CSS, or JS changes ship. The activate handler deletes the old cache automatically — skipping this means users get stale assets until they do a hard refresh.
+
 ## Making a User Admin
 
 ```sql
