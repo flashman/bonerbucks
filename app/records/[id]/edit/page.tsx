@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { parseAnonRecords } from "@/lib/utils";
 import RecordForm from "@/components/RecordForm";
-import GoogleMapsLoader from "@/components/GoogleMapsLoader";
 import type { Record as BRecord } from "@/lib/types";
 
 interface Props { params: Promise<{ id: string }> }
@@ -39,9 +38,7 @@ export default async function EditRecordPage({ params }: Props) {
   return (
     <div className="space-y-4">
       <h2>EDIT BONER SIGHTING</h2>
-      <GoogleMapsLoader>
-        <RecordForm record={r} redirectTo={redirectTo} />
-      </GoogleMapsLoader>
+      <RecordForm record={r} redirectTo={redirectTo} />
     </div>
   );
 }

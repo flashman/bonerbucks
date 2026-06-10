@@ -18,13 +18,6 @@ tsconfig.tsbuildinfo
 .env.local
 .env.*.local
 
-# terraform state (contains secrets — store remotely in prod)
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-*.tfvars
-
 
 # misc
 .DS_Store
