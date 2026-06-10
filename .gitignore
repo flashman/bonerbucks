@@ -19,6 +19,9 @@ tsconfig.tsbuildinfo
 .env.*.local
 
 
+# superpowers session artifacts
+.superpowers/brainstorm/
+
 # misc
 .DS_Store
 *.pem
