@@ -1,5 +1,4 @@
 import RecordForm from "@/components/RecordForm";
-import GoogleMapsLoader from "@/components/GoogleMapsLoader";
 import { normaliseSerial } from "@/lib/utils";
 
 export const metadata = { title: "Report a Boner — Bonerbucks" };
@@ -19,9 +18,7 @@ export default async function NewBonerWithSerialPage({ params }: Props) {
         You&apos;re reporting boner{" "}
         <strong>{normSerial}</strong>. Fill in where you found it.
       </p>
-      <GoogleMapsLoader>
-        <RecordForm initialSerial={normSerial} />
-      </GoogleMapsLoader>
+      <RecordForm initialSerial={normSerial} />
     </div>
   );
 }
