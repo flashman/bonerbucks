@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonerbucks-v2';
+const CACHE_NAME = 'bonerbucks-v3';
 const STATIC_PRECACHE = [
   '/favicon.ico',
   '/bonerbuck.gif',
