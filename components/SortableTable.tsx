@@ -17,7 +17,7 @@ export interface Row {
 type SortKey = keyof Row;
 type Dir = "asc" | "desc";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 50;
 
 export default function SortableTable({ rows }: { rows: Row[] }) {
   const [sortKey, setSortKey] = useState<SortKey>("last_seen");
@@ -28,8 +28,12 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const sorted = [...rows].sort((a, b) => {
-    const av = sortKey === "last_seen" ? (a.last_seen_raw ?? "") : a[sortKey];
-    const bv = sortKey === "last_seen" ? (b.last_seen_raw ?? "") : b[sortKey];
+    const av = sortKey === "last_seen" ? (a.last_seen_raw ?? "")
+             : sortKey === "thumb_url" ? (a.thumb_url ? 1 : 0)
+             : a[sortKey];
+    const bv = sortKey === "last_seen" ? (b.last_seen_raw ?? "")
+             : sortKey === "thumb_url" ? (b.thumb_url ? 1 : 0)
+             : b[sortKey];
     if (av == null || av === "") return 1;
     if (bv == null || bv === "") return -1;
     const cmp = typeof av === "number"
@@ -58,7 +62,7 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
           setVisibleCount(c => Math.min(c + PAGE_SIZE, total));
         }
       },
-      { rootMargin: "200px", threshold: 0 }
+      { rootMargin: "500px", threshold: 0 }
     );
 
     observer.observe(sentinel);
@@ -82,7 +86,7 @@ export default function SortableTable({ rows }: { rows: Row[] }) {
               <th onClick={() => handleSort("sightings")} className="cursor-pointer select-none w-20">SIGHTINGS{arrow("sightings")}</th>
               <th onClick={() => handleSort("last_seen")} className="cursor-pointer select-none">LAST SEEN{arrow("last_seen")}</th>
               <th onClick={() => handleSort("location")} className="cursor-pointer select-none">IN{arrow("location")}</th>
-              <th>PIC</th>
+              <th onClick={() => handleSort("thumb_url")} className="cursor-pointer select-none">PIC{arrow("thumb_url")}</th>
             </tr>
           </thead>
           <tbody>
