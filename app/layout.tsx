@@ -76,7 +76,7 @@ export default async function RootLayout({
             <span className="about">
               <Link href="/about">ABOUT</Link> &nbsp; <Link href="/blog">BLOG</Link>
             </span>
-            <span className="copyright">&copy; 2026 Bonerbucks Inc.</span>
+            <span className="copyright">&copy; 2026 Bonerbucks Org.</span>
           </h5>
         </div>
         <GoogleAnalytics gaId="G-5XW7105XYK" />
